@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理画面</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:#F5F5F5;font-family:'Noto Sans JP',sans-serif;color:#333;}
+    .admin{display:flex;min-height:100vh;}
+    .sidebar{width:220px;background:#1E1E2E;flex-shrink:0;display:flex;flex-direction:column;}
+    .main{flex:1;overflow-y:auto;}
+    .sb-logo{padding:24px 20px 20px;border-bottom:1px solid #2E2E42;}
+    .sb-logo-text{font-size:16px;font-weight:500;color:#fff;letter-spacing:.04em;}
+    .sb-logo-sub{font-size:11px;color:#888;margin-top:3px;}
+    .sb-nav{padding:12px 0;flex:1;}
+    .sb-section{font-size:10px;letter-spacing:.12em;color:#555;padding:16px 20px 6px;}
+    .sb-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;color:#AAA;cursor:pointer;border-left:3px solid transparent;}
+    .sb-item i{font-size:18px;}
+    .sb-item:hover{background:#2E2E42;color:#fff;}
+    .sb-item.active{background:#2E2E42;color:#fff;border-left-color:#C4866A;}
+    .sb-footer{padding:16px 20px;border-top:1px solid #2E2E42;font-size:12px;color:#555;cursor:pointer;}
+    .sb-footer:hover{color:#aaa;}
+    .main-header{background:#fff;border-bottom:1px solid #E5E5E5;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;}
+    .main-header-title{font-size:16px;font-weight:500;color:#333;}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;border:none;}
+    .btn-primary{background:#C4866A;color:#fff;}
+    .btn-primary:hover{background:#B37559;}
+    .btn-ghost{background:#F5F5F5;color:#555;border:1px solid #E5E5E5;}
+    .btn-ghost:hover{background:#EAEAEA;}
+    .content{padding:24px 28px;}
+    .screen{display:none;}
+    .screen.active{display:block;}
+    .card{background:#fff;border-radius:10px;border:1px solid #E5E5E5;overflow:hidden;margin-bottom:24px;}
+    .card-header{padding:16px 20px;border-bottom:1px solid #F0F0F0;display:flex;align-items:center;justify-content:space-between;}
+    .card-title{font-size:14px;font-weight:500;color:#333;}
+    .card-desc{font-size:12px;color:#999;margin-top:2px;}
+    table{width:100%;border-collapse:collapse;}
+    th{font-size:11px;letter-spacing:.08em;color:#888;padding:10px 16px;text-align:left;background:#FAFAFA;border-bottom:1px solid #F0F0F0;}
+    td{font-size:13px;color:#444;padding:12px 16px;border-bottom:1px solid #F8F8F8;vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:#FAFAFA;}
+    .tag{display:inline-block;font-size:11px;padding:2px 10px;border-radius:20px;background:#FBF0E8;color:#C4866A;margin:2px 2px;}
+    .tag-gray{background:#F0F0F0;color:#666;}
+    .actions{display:flex;gap:8px;}
+    .icon-btn{background:none;border:none;cursor:pointer;color:#888;font-size:16px;padding:4px;}
+    .icon-btn:hover{color:#333;}
+    .icon-btn.danger:hover{color:#dc2626;}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    .form-full{grid-column:1/-1;}
+    .form-group{display:flex;flex-direction:column;gap:6px;}
+    label{font-size:12px;color:#666;font-weight:500;}
+    label .hint{font-size:11px;color:#aaa;font-weight:400;margin-left:6px;}
+    input[type=text],input[type=date],select,textarea{width:100%;padding:9px 12px;border:1px solid #E5E5E5;border-radius:8px;font-size:14px;font-family:'Noto Sans JP',sans-serif;color:#333;background:#fff;outline:none;}
+    input[type=text]:focus,input[type=date]:focus,select:focus,textarea:focus{border-color:#C4866A;}
+    textarea{resize:vertical;line-height:1.7;}
+    .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px;}
+    .form-body{padding:20px;}
+    .today-current{background:#FBF0E8;border-radius:8px;padding:16px;margin-bottom:20px;font-size:14px;line-height:1.8;color:#5C4A3D;}
+    .today-date-label{font-size:11px;color:#C4866A;margin-bottom:6px;}
+    .cat-list{padding:16px 20px;display:flex;flex-direction:column;gap:8px;}
+    .cat-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#FAFAFA;border-radius:8px;border:1px solid #F0F0F0;}
+    .cat-row-name{flex:1;font-size:14px;color:#333;}
+    .cat-row-count{font-size:12px;color:#aaa;margin-right:8px;}
+    .cat-add-row{display:flex;gap:8px;padding:16px 20px 20px;}
+    .cat-add-row input{flex:1;}
+  </style>
+</head>
+<body>
+<div class="admin">
+
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-text">ココロの羽 — 管理</div>
+      <div class="sb-logo-sub">Admin Panel</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">メイン</div>
+      <div class="sb-item active" onclick="showScreen('today',this)"><i class="ti ti-sun"></i>今日のひとこと</div>
+      <div class="sb-item" onclick="showScreen('message',this)"><i class="ti ti-mail-heart"></i>メッセージ・手紙</div>
+      <div class="sb-section">本棚</div>
+      <div class="sb-item" onclick="showScreen('memory',this)"><i class="ti ti-photo-heart"></i>思い出</div>
+      <div class="sb-item" onclick="showScreen('likes',this)"><i class="ti ti-heart"></i>好きなところ</div>
+      <div class="sb-item" onclick="showScreen('diary',this)"><i class="ti ti-notebook"></i>日記</div>
+      <div class="sb-section">コンテンツ</div>
+      <div class="sb-item" onclick="showScreen('novel',this)"><i class="ti ti-book-2"></i>お楽しみ（小説）</div>
+      <div class="sb-section">分析</div>
+      <div class="sb-item" onclick="showScreen('analytics',this)"><i class="ti ti-chart-bar"></i>アクセス分析</div>
+      <div class="sb-section">設定</div>
+      <div class="sb-item" onclick="showScreen('settings',this)"><i class="ti ti-settings"></i>カテゴリ・タグ管理</div>
+    </nav>
+    <div class="sb-footer"><i class="ti ti-logout" style="font-size:14px;margin-right:6px;"></i>ログアウト</div>
+  </div>
+
+  <div class="main">
+
+    <!-- 今日のひとこと -->
+    <div class="screen active" id="sc-today">
+      <div class="main-header"><div class="main-header-title">今日のひとこと</div></div>
+      <div class="content">
+        <div class="card">
+          <div class="card-header"><div class="card-title">現在の表示</div></div>
+          <div class="form-body">
+            <div class="today-date-label">2025年6月22日</div>
+            <div class="today-current">遠くにいても、きみのことをいつも考えてるよ。</div>
+            <div class="form-group">
+              <label>今日のメッセージを更新</label>
+              <textarea rows="3" placeholder="今日のひとことを入力…"></textarea>
+            </div>
+            <div class="form-actions"><button class="btn btn-primary"><i class="ti ti-check"></i>更新する</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- メッセージ・手紙 -->
+    <div class="screen" id="sc-message">
+      <div class="main-header">
+        <div class="main-header-title">メッセージ・手紙</div>
+        <button class="btn btn-primary" onclick="showForm('message')"><i class="ti ti-plus"></i>新規追加</button>
+      </div>
+      <div class="content">
+        <div id="message-form" style="display:none;" class="card">
+          <div class="card-header"><div class="card-title">新規メッセージ</div></div>
+          <div class="form-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>カテゴリ <span class="hint">※彼女の画面に表示</span></label>
+                <select><option>不安なとき</option><option>落ち込んだとき</option><option>疲れたとき</option><option>会いたいとき</option></select>
+              </div>
+              <div class="form-group">
+                <label>タグ <span class="hint">※管理用・将来の検索用</span></label>
+                <select multiple style="height:88px;"><option>寄り添う</option><option>はげます</option><option>好きだよ</option><option>元気になれる</option></select>
+              </div>
+              <div class="form-group form-full">
+                <label>本文</label>
+                <textarea rows="4" placeholder="メッセージを入力…"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-ghost" onclick="hideForm('message')">キャンセル</button>
+              <button class="btn btn-primary"><i class="ti ti-check"></i>保存</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">投稿一覧</div></div>
+          <table>
+            <thead><tr><th>カテゴリ</th><th>タグ</th><th>本文</th><th>投稿日</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag">不安なとき</span></td><td><span class="tag tag-gray">寄り添う</span></td><td>大丈夫。うまくいかないことがあっても、それはきみが弱いんじゃない。</td><td style="white-space:nowrap;">6月22日</td><td><div class="actions"><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+              <tr><td><span class="tag">落ち込んだとき</span></td><td><span class="tag tag-gray">はげます</span></td><td>今日も一日、よく頑張ったね。それだけでじゅうぶん。</td><td style="white-space:nowrap;">6月21日</td><td><div class="actions"><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+              <tr><td><span class="tag">疲れたとき</span></td><td><span class="tag tag-gray">寄り添う</span><span class="tag tag-gray">好きだよ</span></td><td>今日はもう何もしなくていい。ただ、ゆっくり休んで。</td><td style="white-space:nowrap;">6月18日</td><td><div class="actions"><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 思い出 -->
+    <div class="screen" id="sc-memory">
+      <div class="main-header">
+        <div class="main-header-title">思い出</div>
+        <button class="btn btn-primary" onclick="showForm('memory')"><i class="ti ti-plus"></i>新規追加</button>
+      </div>
+      <div class="content">
+        <div id="memory-form" style="display:none;" class="card">
+          <div class="card-header"><div class="card-title">新規思い出</div></div>
+          <div class="form-body">
+            <div class="form-grid">
+              <div class="form-group"><label>日付</label><input type="date"></div>
+              <div class="form-group"><label>写真</label><input type="text" placeholder="画像URLまたはファイルパス"></div>
+              <div class="form-group form-full"><label>一言</label><textarea rows="3" placeholder="この思い出についての一言…"></textarea></div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-ghost" onclick="hideForm('memory')">キャンセル</button>
+              <button class="btn btn-primary"><i class="ti ti-check"></i>保存</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">一覧</div></div>
+          <table>
+            <thead><tr><th>日付</th><th>一言</th><th></th></tr></thead>
+            <tbody>
+              <tr><td style="white-space:nowrap;">2024年4月5日</td><td>初めて二人で行った公園。桜がきれいで、ずっと歩いてたね。</td><td><div class="actions"><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+              <tr><td style="white-space:nowrap;">2024年11月22日</td><td>二人で食べたラーメン。きみが「辛い」って言いながら全部食べてたのがかわいかった。</td><td><div class="actions"><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 好きなところ -->
+    <div class="screen" id="sc-likes">
+      <div class="main-header">
+        <div class="main-header-title">好きなところ</div>
+        <button class="btn btn-primary" onclick="showForm('likes')"><i class="ti ti-plus"></i>追加</button>
+      </div>
+      <div class="content">
+        <div id="likes-form" style="display:none;" class="card">
+          <div class="card-header"><div class="card-title">新規追加</div></div>
+          <div class="form-body">
+            <div class="form-group"><label>好きなところ</label><input type="text" placeholder="一言で入力…"></div>
+            <div class="form-actions">
+              <button class="btn btn-ghost" onclick="hideForm('likes')">キャンセル</button>
+              <button class="btn btn-primary"><i class="ti ti-check"></i>保存</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">一覧</div></div>
+          <table>
+            <thead><tr><th>#</th><th>内容</th><th></th></tr></thead>
+            <tbody>
+              <tr><td style="color:#E8C5A0;font-weight:500;">01</td><td>感受性が豊かで、小さなことにも心を動かせるところ</td><td><div class="actions"><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+              <tr><td style="color:#E8C5A0;font-weight:500;">02</td><td>一生懸命に毎日を過ごしているところ</td><td><div class="actions"><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+              <tr><td style="color:#E8C5A0;font-weight:500;">03</td><td>笑うと目が細くなるところ</td><td><div class="actions"><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+              <tr><td style="color:#E8C5A0;font-weight:500;">04</td><td>不器用なのに、いつも誰かのために頑張れるところ</td><td><div class="actions"><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 日記 -->
+    <div class="screen" id="sc-diary">
+      <div class="main-header">
+        <div class="main-header-title">日記</div>
+        <button class="btn btn-primary" onclick="showForm('diary')"><i class="ti ti-plus"></i>新規追加</button>
+      </div>
+      <div class="content">
+        <div id="diary-form" style="display:none;" class="card">
+          <div class="card-header"><div class="card-title">新規日記</div></div>
+          <div class="form-body">
+            <div class="form-grid">
+              <div class="form-group"><label>日付</label><input type="date"></div>
+              <div class="form-group"><label>タイトル</label><input type="text" placeholder="タイトルを入力…"></div>
+              <div class="form-group form-full"><label>本文</label><textarea rows="6" placeholder="今日の近況を書く…"></textarea></div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-ghost" onclick="hideForm('diary')">キャンセル</button>
+              <button class="btn btn-primary"><i class="ti ti-check"></i>保存</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">一覧</div></div>
+          <table>
+            <thead><tr><th>日付</th><th>タイトル</th><th>本文</th><th></th></tr></thead>
+            <tbody>
+              <tr><td style="white-space:nowrap;">6月21日（金）</td><td style="white-space:nowrap;">今日は久しぶりに晴れた</td><td style="color:#888;">朝から天気がよくて、窓を開けたら風が気持ちよかった…</td><td><div class="actions"><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+              <tr><td style="white-space:nowrap;">6月18日（火）</td><td style="white-space:nowrap;">最近ハマっていること</td><td style="color:#888;">最近、夜寝る前に本を読むのが習慣になってきた…</td><td><div class="actions"><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- お楽しみ -->
+    <div class="screen" id="sc-novel">
+      <div class="main-header">
+        <div class="main-header-title">お楽しみ（小説）</div>
+        <button class="btn btn-primary" onclick="showForm('novel')"><i class="ti ti-plus"></i>新規追加</button>
+      </div>
+      <div class="content">
+        <div id="novel-form" style="display:none;" class="card">
+          <div class="card-header"><div class="card-title">新規作品</div></div>
+          <div class="form-body">
+            <div class="form-grid">
+              <div class="form-group form-full"><label>タイトル</label><input type="text" placeholder="タイトルを入力…"></div>
+              <div class="form-group form-full"><label>本文</label><textarea rows="10" placeholder="物語を書く…"></textarea></div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-ghost" onclick="hideForm('novel')">キャンセル</button>
+              <button class="btn btn-primary"><i class="ti ti-check"></i>保存</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">一覧</div></div>
+          <table>
+            <thead><tr><th>タイトル</th><th>投稿日</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>春の終わりに、きみのことを思った</td><td style="white-space:nowrap;">6月21日</td><td><div class="actions"><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+              <tr><td>雨の日の話</td><td style="white-space:nowrap;">5月14日</td><td><div class="actions"><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- アクセス分析 -->
+    <div class="screen" id="sc-analytics">
+      <div class="main-header"><div class="main-header-title">アクセス分析</div></div>
+      <div class="content">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
+          <div class="card" style="padding:16px 18px;overflow:visible;">
+            <div style="font-size:11px;color:#999;margin-bottom:6px;letter-spacing:.04em;">総アクセス数</div>
+            <div style="font-size:26px;font-weight:500;color:#333;">247</div>
+            <div style="font-size:11px;color:#aaa;margin-top:4px;">先月比 +32</div>
+          </div>
+          <div class="card" style="padding:16px 18px;overflow:visible;">
+            <div style="font-size:11px;color:#999;margin-bottom:6px;letter-spacing:.04em;">今月のアクセス</div>
+            <div style="font-size:26px;font-weight:500;color:#333;">38</div>
+            <div style="font-size:11px;color:#aaa;margin-top:4px;">直近30日間</div>
+          </div>
+          <div class="card" style="padding:16px 18px;overflow:visible;">
+            <div style="font-size:11px;color:#999;margin-bottom:6px;letter-spacing:.04em;">最もよく読まれた</div>
+            <div style="font-size:15px;font-weight:500;color:#333;line-height:1.5;margin-top:4px;">不安なときへの手紙</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+          <div class="card" style="padding:20px;">
+            <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:16px;">カテゴリ別閲覧数</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <div style="font-size:12px;color:#555;width:90px;flex-shrink:0;text-align:right;">不安なとき</div>
+              <div style="flex:1;background:#F5F5F5;border-radius:4px;height:20px;"><div style="width:82%;height:20px;border-radius:4px;background:#C4866A;"></div></div>
+              <div style="font-size:12px;color:#888;width:36px;">82</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <div style="font-size:12px;color:#555;width:90px;flex-shrink:0;text-align:right;">落ち込んだとき</div>
+              <div style="flex:1;background:#F5F5F5;border-radius:4px;height:20px;"><div style="width:61%;height:20px;border-radius:4px;background:#C4866A;opacity:.85;"></div></div>
+              <div style="font-size:12px;color:#888;width:36px;">61</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <div style="font-size:12px;color:#555;width:90px;flex-shrink:0;text-align:right;">疲れたとき</div>
+              <div style="flex:1;background:#F5F5F5;border-radius:4px;height:20px;"><div style="width:44%;height:20px;border-radius:4px;background:#C4866A;opacity:.7;"></div></div>
+              <div style="font-size:12px;color:#888;width:36px;">44</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="font-size:12px;color:#555;width:90px;flex-shrink:0;text-align:right;">会いたいとき</div>
+              <div style="flex:1;background:#F5F5F5;border-radius:4px;height:20px;"><div style="width:28%;height:20px;border-radius:4px;background:#C4866A;opacity:.55;"></div></div>
+              <div style="font-size:12px;color:#888;width:36px;">28</div>
+            </div>
+          </div>
+          <div class="card" style="padding:20px;">
+            <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:12px;">時間帯別アクセス</div>
+            <div style="position:relative;height:160px;">
+              <canvas id="hourChart" role="img" aria-label="時間帯別アクセス数">21時〜24時がピーク。</canvas>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">コンテンツ別閲覧ランキング</div></div>
+          <table>
+            <thead><tr><th>#</th><th>コンテンツ</th><th>種別</th><th>閲覧数</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:500;color:#C4866A;">1</td>
+                <td>きみが不安になるのは、それだけ真剣に生きてる証拠だよ。</td>
+                <td><span class="tag">手紙</span></td><td>34</td>
+                <td><div style="width:80px;height:6px;background:#F0F0F0;border-radius:3px;"><div style="width:100%;height:6px;border-radius:3px;background:#C4866A;"></div></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:500;color:#C4866A;">2</td>
+                <td>春の終わりに、きみのことを思った</td>
+                <td><span class="tag tag-gray">お楽しみ</span></td><td>28</td>
+                <td><div style="width:80px;height:6px;background:#F0F0F0;border-radius:3px;"><div style="width:82%;height:6px;border-radius:3px;background:#C4866A;"></div></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:500;color:#C4866A;">3</td>
+                <td>今日も一日、よく頑張ったね。それだけでじゅうぶん。</td>
+                <td><span class="tag">手紙</span></td><td>21</td>
+                <td><div style="width:80px;height:6px;background:#F0F0F0;border-radius:3px;"><div style="width:62%;height:6px;border-radius:3px;background:#C4866A;"></div></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:500;color:#C4866A;">4</td>
+                <td>今日は久しぶりに晴れた</td>
+                <td><span class="tag tag-gray">日記</span></td><td>18</td>
+                <td><div style="width:80px;height:6px;background:#F0F0F0;border-radius:3px;"><div style="width:53%;height:6px;border-radius:3px;background:#C4866A;"></div></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:500;color:#C4866A;">5</td>
+                <td>初めて二人で行った公園。桜がきれいで…</td>
+                <td><span class="tag tag-gray">思い出</span></td><td>15</td>
+                <td><div style="width:80px;height:6px;background:#F0F0F0;border-radius:3px;"><div style="width:44%;height:6px;border-radius:3px;background:#C4866A;"></div></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" style="overflow:visible;">
+          <div class="card-header">
+            <div class="card-title">日別アクセスログ</div>
+            <div style="display:flex;gap:8px;">
+              <select style="padding:6px 10px;border:1px solid #E5E5E5;border-radius:6px;font-size:12px;color:#555;background:#fff;font-family:'Noto Sans JP',sans-serif;outline:none;">
+                <option>すべてのページ</option>
+                <option>手紙</option>
+                <option>思い出</option>
+                <option>日記</option>
+                <option>お楽しみ</option>
+                <option>好きなところ</option>
+              </select>
+              <select style="padding:6px 10px;border:1px solid #E5E5E5;border-radius:6px;font-size:12px;color:#555;background:#fff;font-family:'Noto Sans JP',sans-serif;outline:none;">
+                <option>直近30日</option>
+                <option>直近7日</option>
+                <option>今月</option>
+                <option>先月</option>
+              </select>
+            </div>
+          </div>
+          <div id="log-list">
+
+            <div style="border-bottom:1px solid #F5F5F5;">
+              <div style="padding:10px 20px;background:#FAFAFA;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="toggleLog(this)">
+                <i class="ti ti-chevron-right" style="font-size:14px;color:#ccc;transition:transform .2s;transform:rotate(90deg);" aria-hidden="true"></i>
+                <span style="font-size:12px;font-weight:500;color:#555;min-width:100px;">6月22日（土）</span>
+                <span style="font-size:11px;color:#aaa;margin-right:8px;">5件</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <span class="tag" style="font-size:10px;padding:2px 8px;">手紙</span>
+                  <span class="tag tag-gray" style="font-size:10px;padding:2px 8px;">日記</span>
+                  <span class="tag tag-gray" style="font-size:10px;padding:2px 8px;">お楽しみ</span>
+                </div>
+              </div>
+              <div style="padding:8px 20px 12px 44px;display:flex;flex-direction:column;gap:6px;">
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">23:41</span><span style="font-size:13px;color:#444;">きみが不安になるのは、それだけ真剣に生きてる証拠だよ。</span><span class="tag" style="font-size:10px;padding:2px 8px;white-space:nowrap;">手紙</span></div>
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">23:38</span><span style="font-size:13px;color:#444;">今日は久しぶりに晴れた</span><span class="tag tag-gray" style="font-size:10px;padding:2px 8px;white-space:nowrap;">日記</span></div>
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">23:35</span><span style="font-size:13px;color:#444;">今日も一日、よく頑張ったね。それだけでじゅうぶん。</span><span class="tag" style="font-size:10px;padding:2px 8px;white-space:nowrap;">手紙</span></div>
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">22:10</span><span style="font-size:13px;color:#444;">春の終わりに、きみのことを思った</span><span class="tag tag-gray" style="font-size:10px;padding:2px 8px;white-space:nowrap;">お楽しみ</span></div>
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">22:07</span><span style="font-size:13px;color:#444;">ホーム</span><span class="tag tag-gray" style="font-size:10px;padding:2px 8px;white-space:nowrap;">ホーム</span></div>
+              </div>
+            </div>
+
+            <div style="border-bottom:1px solid #F5F5F5;">
+              <div style="padding:10px 20px;background:#FAFAFA;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="toggleLog(this)">
+                <i class="ti ti-chevron-right" style="font-size:14px;color:#ccc;transition:transform .2s;" aria-hidden="true"></i>
+                <span style="font-size:12px;font-weight:500;color:#555;min-width:100px;">6月21日（金）</span>
+                <span style="font-size:11px;color:#aaa;margin-right:8px;">3件</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <span class="tag" style="font-size:10px;padding:2px 8px;">手紙</span>
+                  <span class="tag tag-gray" style="font-size:10px;padding:2px 8px;">思い出</span>
+                </div>
+              </div>
+              <div style="padding:8px 20px 12px 44px;display:flex;flex-direction:column;gap:6px;display:none;">
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">21:55</span><span style="font-size:13px;color:#444;">落ち込むことがあっても、きみはちゃんとここにいる。</span><span class="tag" style="font-size:10px;padding:2px 8px;white-space:nowrap;">手紙</span></div>
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">21:50</span><span style="font-size:13px;color:#444;">初めて二人で行った公園</span><span class="tag tag-gray" style="font-size:10px;padding:2px 8px;white-space:nowrap;">思い出</span></div>
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">21:48</span><span style="font-size:13px;color:#444;">ホーム</span><span class="tag tag-gray" style="font-size:10px;padding:2px 8px;white-space:nowrap;">ホーム</span></div>
+              </div>
+            </div>
+
+            <div style="border-bottom:1px solid #F5F5F5;">
+              <div style="padding:10px 20px;background:#FAFAFA;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="toggleLog(this)">
+                <i class="ti ti-chevron-right" style="font-size:14px;color:#ccc;transition:transform .2s;" aria-hidden="true"></i>
+                <span style="font-size:12px;font-weight:500;color:#555;min-width:100px;">6月19日（水）</span>
+                <span style="font-size:11px;color:#aaa;margin-right:8px;">4件</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <span class="tag" style="font-size:10px;padding:2px 8px;">手紙</span>
+                  <span class="tag tag-gray" style="font-size:10px;padding:2px 8px;">お楽しみ</span>
+                </div>
+              </div>
+              <div style="padding:8px 20px 12px 44px;display:flex;flex-direction:column;gap:6px;display:none;">
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">01:22</span><span style="font-size:13px;color:#444;">きみが不安になるのは、それだけ真剣に生きてる証拠だよ。</span><span class="tag" style="font-size:10px;padding:2px 8px;white-space:nowrap;">手紙</span></div>
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">01:18</span><span style="font-size:13px;color:#444;">今日はもう何もしなくていい。ただ、ゆっくり休んで。</span><span class="tag" style="font-size:10px;padding:2px 8px;white-space:nowrap;">手紙</span></div>
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">01:15</span><span style="font-size:13px;color:#444;">雨の日の話</span><span class="tag tag-gray" style="font-size:10px;padding:2px 8px;white-space:nowrap;">お楽しみ</span></div>
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">01:10</span><span style="font-size:13px;color:#444;">ホーム</span><span class="tag tag-gray" style="font-size:10px;padding:2px 8px;white-space:nowrap;">ホーム</span></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="padding:10px 20px;background:#FAFAFA;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="toggleLog(this)">
+                <i class="ti ti-chevron-right" style="font-size:14px;color:#ccc;transition:transform .2s;" aria-hidden="true"></i>
+                <span style="font-size:12px;font-weight:500;color:#555;min-width:100px;">6月17日（月）</span>
+                <span style="font-size:11px;color:#aaa;margin-right:8px;">2件</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <span class="tag tag-gray" style="font-size:10px;padding:2px 8px;">好きなところ</span>
+                </div>
+              </div>
+              <div style="padding:8px 20px 12px 44px;display:flex;flex-direction:column;gap:6px;display:none;">
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">20:30</span><span style="font-size:13px;color:#444;">好きなところ一覧</span><span class="tag tag-gray" style="font-size:10px;padding:2px 8px;white-space:nowrap;">好きなところ</span></div>
+                <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:11px;color:#aaa;min-width:42px;">20:28</span><span style="font-size:13px;color:#444;">ホーム</span><span class="tag tag-gray" style="font-size:10px;padding:2px 8px;white-space:nowrap;">ホーム</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- カテゴリ・タグ管理 -->
+    <div class="screen" id="sc-settings">
+      <div class="main-header"><div class="main-header-title">カテゴリ・タグ管理</div></div>
+      <div class="content">
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">カテゴリ</div><div class="card-desc">彼女の手紙画面で絞り込みに使われます</div></div>
+          </div>
+          <div class="cat-list" id="cat-list">
+            <div class="cat-row"><span class="cat-row-name">不安なとき</span><span class="cat-row-count">3件</span><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div>
+            <div class="cat-row"><span class="cat-row-name">落ち込んだとき</span><span class="cat-row-count">2件</span><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div>
+            <div class="cat-row"><span class="cat-row-name">疲れたとき</span><span class="cat-row-count">1件</span><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div>
+            <div class="cat-row"><span class="cat-row-name">会いたいとき</span><span class="cat-row-count">0件</span><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div>
+          </div>
+          <div class="cat-add-row"><input type="text" id="new-cat" placeholder="新しいカテゴリ名を入力…"><button class="btn btn-primary" onclick="addCat()"><i class="ti ti-plus"></i>追加</button></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">タグ</div><div class="card-desc">管理用・将来の検索用。現在は彼女の画面には表示されません</div></div>
+          </div>
+          <div class="cat-list" id="tag-list">
+            <div class="cat-row"><span class="cat-row-name">寄り添う</span><span class="cat-row-count">2件</span><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div>
+            <div class="cat-row"><span class="cat-row-name">はげます</span><span class="cat-row-count">1件</span><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div>
+            <div class="cat-row"><span class="cat-row-name">好きだよ</span><span class="cat-row-count">1件</span><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div>
+            <div class="cat-row"><span class="cat-row-name">元気になれる</span><span class="cat-row-count">0件</span><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button></div>
+          </div>
+          <div class="cat-add-row"><input type="text" id="new-tag" placeholder="新しいタグ名を入力…"><button class="btn btn-primary" onclick="addTag()"><i class="ti ti-plus"></i>追加</button></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var hourChartInstance = null;
+
+  function showScreen(id, el) {
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    document.querySelectorAll('.sb-item').forEach(function(n){ n.classList.remove('active'); });
+    document.getElementById('sc-' + id).classList.add('active');
+    el.classList.add('active');
+    if (id === 'analytics') setTimeout(initHourChart, 50);
+  }
+  function showForm(id) {
+    document.getElementById(id + '-form').style.display = 'block';
+    document.getElementById(id + '-form').scrollIntoView({behavior:'smooth'});
+  }
+  function hideForm(id) {
+    document.getElementById(id + '-form').style.display = 'none';
+  }
+  function addCat() {
+    var val = document.getElementById('new-cat').value.trim();
+    if (!val) return;
+    var row = document.createElement('div');
+    row.className = 'cat-row';
+    row.innerHTML = '<span class="cat-row-name">'+val+'</span><span class="cat-row-count">0件</span><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button>';
+    document.getElementById('cat-list').appendChild(row);
+    document.getElementById('new-cat').value = '';
+  }
+  function addTag() {
+    var val = document.getElementById('new-tag').value.trim();
+    if (!val) return;
+    var row = document.createElement('div');
+    row.className = 'cat-row';
+    row.innerHTML = '<span class="cat-row-name">'+val+'</span><span class="cat-row-count">0件</span><button class="icon-btn"><i class="ti ti-edit"></i></button><button class="icon-btn danger"><i class="ti ti-trash"></i></button>';
+    document.getElementById('tag-list').appendChild(row);
+    document.getElementById('new-tag').value = '';
+  }
+  function toggleLog(header) {
+    var entries = header.nextElementSibling;
+    var chevron = header.querySelector('i');
+    var isOpen = entries.style.display !== 'none' && entries.style.display !== '';
+    if (isOpen) {
+      entries.style.display = 'none';
+      chevron.style.transform = 'rotate(0deg)';
+    } else {
+      entries.style.display = 'flex';
+      chevron.style.transform = 'rotate(90deg)';
+    }
+  }
+  function initHourChart() {
+    if (hourChartInstance) return;
+    var hours = ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23'];
+    var data = [8,5,3,2,1,1,1,2,3,4,3,4,5,4,3,3,4,5,6,8,12,18,15,10];
+    hourChartInstance = new Chart(document.getElementById('hourChart'), {
+      type: 'bar',
+      data: { labels: hours, datasets: [{ data: data, backgroundColor: '#C4866A', borderRadius: 3, borderSkipped: false }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { font: { size: 10 }, color: '#aaa', maxRotation: 0 }, grid: { display: false } },
+          y: { ticks: { font: { size: 10 }, color: '#aaa' }, grid: { color: '#F5F5F5' } }
+        }
+      }
+    });
+  }
+</script>
+</body>
+</html>

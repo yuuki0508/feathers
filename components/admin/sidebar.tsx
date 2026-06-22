@@ -1,0 +1,89 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { logoutAction } from "@/lib/actions/admin/auth";
+
+const NAV_SECTIONS = [
+  {
+    title: "メイン",
+    items: [
+      { href: "/admin", label: "今日のひとこと", icon: "ti-sun" },
+      { href: "/admin/message", label: "メッセージ・手紙", icon: "ti-mail-heart" },
+    ],
+  },
+  {
+    title: "本棚",
+    items: [
+      { href: "/admin/memory", label: "思い出", icon: "ti-photo-heart" },
+      { href: "/admin/likes", label: "好きなところ", icon: "ti-heart" },
+      { href: "/admin/diary", label: "日記", icon: "ti-notebook" },
+    ],
+  },
+  {
+    title: "コンテンツ",
+    items: [{ href: "/admin/novel", label: "お楽しみ（小説）", icon: "ti-book-2" }],
+  },
+  {
+    title: "分析",
+    items: [{ href: "/admin/analytics", label: "アクセス分析", icon: "ti-chart-bar" }],
+  },
+  {
+    title: "設定",
+    items: [{ href: "/admin/settings", label: "カテゴリ・タグ管理", icon: "ti-settings" }],
+  },
+] as const;
+
+export function AdminSidebar() {
+  const pathname = usePathname();
+
+  return (
+    <aside className="flex w-[220px] shrink-0 flex-col bg-[#1E1E2E]">
+      <div className="border-b border-[#2E2E42] px-5 pb-5 pt-6">
+        <p className="text-base font-medium tracking-wide text-white">ココロの羽 — 管理</p>
+        <p className="mt-1 text-[11px] text-[#888]">Admin Panel</p>
+      </div>
+
+      <nav className="flex-1 py-3">
+        {NAV_SECTIONS.map((section) => (
+          <div key={section.title}>
+            <p className="px-5 pb-1.5 pt-4 text-[10px] tracking-[0.12em] text-[#555]">
+              {section.title}
+            </p>
+            {section.items.map((item) => {
+              const active =
+                item.href === "/admin"
+                  ? pathname === "/admin"
+                  : pathname.startsWith(item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-2.5 border-l-[3px] px-5 py-2.5 text-[13px] ${
+                    active
+                      ? "border-[#C4866A] bg-[#2E2E42] text-white"
+                      : "border-transparent text-[#AAA] hover:bg-[#2E2E42] hover:text-white"
+                  }`}
+                >
+                  <i className={`ti ${item.icon} text-lg`} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+      </nav>
+
+      <form action={logoutAction}>
+        <button
+          type="submit"
+          className="flex w-full items-center border-t border-[#2E2E42] px-5 py-4 text-xs text-[#555] hover:text-[#aaa]"
+        >
+          <i className="ti ti-logout mr-1.5 text-sm" />
+          ログアウト
+        </button>
+      </form>
+    </aside>
+  );
+}

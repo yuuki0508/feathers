@@ -1,0 +1,48 @@
+import { AccessLogTracker } from "@/components/viewer/access-log-tracker";
+import { MemoryCard } from "@/components/viewer/memory-card";
+import { ShelfBackLink } from "@/components/viewer/shelf-back-link";
+import { SubHeader } from "@/components/viewer/sub-header";
+import { getSignedPhotoUrl } from "@/lib/storage";
+import { createClient } from "@/lib/supabase/server";
+import type { Memory } from "@/lib/types/database";
+
+export default async function MemoryPage() {
+  const supabase = await createClient();
+  const { data: memories } = await supabase
+    .from("memories")
+    .select("*")
+    .order("memory_date", { ascending: false })
+    .returns<Memory[]>();
+
+  const memoriesWithPhotos = await Promise.all(
+    (memories ?? []).map(async (memory) => ({
+      ...memory,
+      signedPhotoUrl: await getSignedPhotoUrl(supabase, memory.photo_url),
+    })),
+  );
+
+  return (
+    <>
+      <AccessLogTracker pageType="思い出一覧" />
+      <ShelfBackLink />
+      <SubHeader title="思い出" subtitle="Million Films" />
+      <div className="px-5">
+        {memoriesWithPhotos.length > 0 ? (
+          memoriesWithPhotos.map((memory) => (
+            <MemoryCard
+              key={memory.id}
+              id={memory.id}
+              caption={memory.caption}
+              memoryDate={memory.memory_date}
+              photoUrl={memory.signedPhotoUrl}
+            />
+          ))
+        ) : (
+          <p className="rounded-[18px] border border-border bg-card px-5 py-8 text-center text-sm text-text-sub">
+            まだ思い出がありません。
+          </p>
+        )}
+      </div>
+    </>
+  );
+}

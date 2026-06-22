@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ココロの羽</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&family=DM+Serif+Display&display=swap">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:#FDF6F0;}
+    .kj{background:#FDF6F0;font-family:'Noto Serif JP',serif;color:#5C4A3D;max-width:390px;margin:0 auto;min-height:100vh;position:relative;}
+    .kj-screen{display:none;padding-bottom:80px;}
+    .kj-screen.active{display:block;}
+
+    /* login */
+    #s-login{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 32px;}
+    #s-login.active{display:flex;}
+    .kj-form{width:100%;margin-top:48px;display:flex;flex-direction:column;gap:16px;}
+    .kj-input-wrap{position:relative;}
+    .kj-input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;color:#C4866A;}
+    .kj-input{width:100%;background:#FFFAF7;border:1px solid #EDD8C8;border-radius:16px;padding:14px 16px 14px 44px;font-size:15px;font-family:'Noto Serif JP',serif;color:#5C4A3D;outline:none;}
+    .kj-input::placeholder{color:#C9B0A0;}
+    .kj-input:focus{border-color:#C4866A;}
+    .kj-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;color:#B9A090;cursor:pointer;}
+    .kj-btn{width:100%;background:#C4866A;border:none;border-radius:16px;padding:15px;font-size:15px;font-family:'Noto Serif JP',serif;color:#FFFAF7;letter-spacing:.08em;cursor:pointer;margin-top:8px;}
+    .kj-btn:active{opacity:.85;}
+    .kj-note{font-size:11px;color:#B9A090;text-align:center;margin-top:24px;line-height:1.8;}
+
+    /* header */
+    .kj-header{padding:36px 24px 16px;text-align:center;}
+    .kj-hearts{height:28px;display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:10px;}
+    .kj-heart{font-size:11px;color:#C4866A;opacity:0;animation:fh 3.2s ease-in-out infinite;}
+    .kj-heart:nth-child(2){animation-delay:.9s;font-size:9px;color:#E8C5A0;}
+    .kj-heart:nth-child(3){animation-delay:1.8s;font-size:13px;}
+    @keyframes fh{0%{opacity:0;transform:translateY(5px)}30%{opacity:1}70%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
+    .kj-logo{font-family:'DM Serif Display',serif;font-size:24px;color:#C4866A;letter-spacing:.03em;}
+    .kj-logo-sub{font-size:11px;color:#A8897A;letter-spacing:.1em;margin-top:3px;}
+
+    /* section */
+    .kj-sec{padding:0 20px;margin-bottom:24px;}
+    .kj-sec-label{font-size:10px;letter-spacing:.14em;color:#A8897A;margin-bottom:10px;padding-left:2px;}
+
+    /* today */
+    .kj-today{background:#FFFAF7;border-radius:20px;padding:22px 24px;border:1px solid #EDD8C8;text-align:center;}
+    .kj-today-date{font-size:11px;color:#B9A090;letter-spacing:.08em;margin-bottom:10px;}
+    .kj-today-text{font-size:16px;line-height:2;color:#5C4A3D;}
+
+    /* message */
+    .kj-msg{background:#FFFAF7;border-radius:18px;padding:18px 18px 14px;border:1px solid #EDD8C8;margin-bottom:10px;position:relative;overflow:hidden;}
+    .kj-msg::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:#E8C5A0;border-radius:18px 0 0 18px;}
+    .kj-msg-tag{font-size:10px;letter-spacing:.08em;color:#C4866A;background:#FBF0E8;display:inline-block;padding:3px 10px;border-radius:20px;margin-bottom:10px;margin-left:6px;}
+    .kj-msg-text{font-size:14px;line-height:1.9;color:#5C4A3D;padding-left:6px;}
+    .kj-msg-time{font-size:10px;color:#B9A090;text-align:right;margin-top:10px;}
+
+    /* sub header */
+    .kj-sub-header{padding:36px 24px 16px;text-align:center;}
+    .kj-sub-title{font-family:'DM Serif Display',serif;font-size:20px;color:#C4866A;}
+    .kj-sub-desc{font-size:11px;color:#A8897A;margin-top:4px;letter-spacing:.08em;}
+
+    /* category */
+    .kj-cat-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 20px 16px;}
+    .kj-cat-row::-webkit-scrollbar{display:none;}
+    .kj-cat{flex:0 0 auto;font-size:12px;padding:6px 16px;border-radius:20px;border:1px solid #EDD8C8;background:#FFFAF7;color:#7A6055;cursor:pointer;}
+    .kj-cat.active{background:#C4866A;border-color:#C4866A;color:#FFFAF7;}
+
+    /* letter */
+    .kj-letter-list{padding:0 20px;}
+    .kj-letter-card{background:#FFFAF7;border-radius:18px;padding:20px;border:1px solid #EDD8C8;margin-bottom:12px;}
+    .kj-letter-tag{font-size:10px;color:#C4866A;background:#FBF0E8;display:inline-block;padding:3px 10px;border-radius:20px;margin-bottom:12px;}
+    .kj-letter-text{font-size:14px;line-height:1.95;color:#5C4A3D;}
+    .kj-letter-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+    .kj-letter-date{font-size:10px;color:#B9A090;}
+    .kj-unread{width:7px;height:7px;border-radius:50%;background:#C4866A;}
+
+    /* shelf */
+    .kj-shelf-menu{padding:0 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:8px;}
+    .kj-shelf-item{background:#FFFAF7;border-radius:18px;border:1px solid #EDD8C8;padding:20px 12px 16px;text-align:center;cursor:pointer;}
+    .kj-shelf-item i{font-size:28px;color:#C4866A;display:block;margin-bottom:10px;}
+    .kj-shelf-item-name{font-size:12px;color:#5C4A3D;line-height:1.4;}
+    .kj-shelf-item-count{font-size:10px;color:#A8897A;margin-top:4px;}
+    .kj-shelf-back{display:flex;align-items:center;gap:6px;padding:20px 20px 0;cursor:pointer;color:#A8897A;font-size:12px;}
+    .kj-shelf-back i{font-size:16px;}
+
+    /* memory */
+    .kj-mem-list{padding:0 20px;}
+    .kj-mem-card{background:#FFFAF7;border-radius:20px;overflow:hidden;border:1px solid #EDD8C8;margin-bottom:16px;}
+    .kj-mem-photo{width:100%;height:160px;background:#EDD8C8;display:flex;align-items:center;justify-content:center;font-size:48px;}
+    .kj-mem-body{padding:16px 18px 14px;}
+    .kj-mem-caption{font-size:14px;line-height:1.85;color:#5C4A3D;}
+    .kj-mem-date{font-size:10px;color:#B9A090;margin-top:10px;}
+
+    /* likes */
+    .kj-likes{padding:0 20px;}
+    .kj-like-card{background:#FFFAF7;border-radius:18px;padding:18px 20px;border:1px solid #EDD8C8;margin-bottom:10px;display:flex;align-items:baseline;gap:12px;}
+    .kj-like-num{font-family:'DM Serif Display',serif;font-size:20px;color:#E8C5A0;min-width:28px;}
+    .kj-like-text{font-size:14px;line-height:1.7;color:#5C4A3D;}
+
+    /* diary */
+    .kj-diary-list{padding:0 20px;}
+    .kj-diary-card{background:#FFFAF7;border-radius:18px;padding:20px;border:1px solid #EDD8C8;margin-bottom:12px;}
+    .kj-diary-date{font-size:10px;color:#C4866A;letter-spacing:.08em;margin-bottom:10px;}
+    .kj-diary-title{font-size:15px;font-weight:500;color:#5C4A3D;margin-bottom:8px;}
+    .kj-diary-text{font-size:13px;line-height:1.9;color:#7A6055;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+
+    /* novel */
+    .kj-novel-list{padding:0 20px;}
+    .kj-novel-card{background:#FFFAF7;border-radius:18px;padding:20px;border:1px solid #EDD8C8;margin-bottom:12px;}
+    .kj-novel-new{font-size:10px;color:#C4866A;background:#FBF0E8;display:inline-block;padding:3px 10px;border-radius:20px;margin-bottom:12px;}
+    .kj-novel-title{font-size:16px;font-weight:500;color:#5C4A3D;margin-bottom:8px;line-height:1.5;}
+    .kj-novel-preview{font-size:13px;color:#8A7060;line-height:1.8;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+    .kj-novel-foot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;}
+    .kj-novel-date{font-size:10px;color:#B9A090;}
+    .kj-novel-read{font-size:11px;color:#C4866A;letter-spacing:.05em;}
+
+    /* nav */
+    .kj-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:390px;background:#FFFAF7;border-top:1px solid #EDD8C8;display:flex;justify-content:space-around;padding:10px 0 18px;}
+    .kj-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:#A8897A;letter-spacing:.06em;cursor:pointer;background:none;border:none;font-family:'Noto Serif JP',serif;padding:0;}
+    .kj-nav-btn i{font-size:24px;color:#A8897A;}
+    .kj-nav-btn.active i{color:#C4866A;}
+    .kj-nav-btn.active{color:#C4866A;}
+  </style>
+</head>
+<body>
+<div class="kj">
+
+  <!-- LOGIN -->
+  <div class="kj-screen active" id="s-login">
+    <div class="kj-hearts">
+      <span class="kj-heart">♡</span>
+      <span class="kj-heart">♡</span>
+      <span class="kj-heart">♡</span>
+    </div>
+    <div class="kj-logo">ココロの羽</div>
+    <div class="kj-logo-sub">どんなに遠く離れても</div>
+    <div class="kj-form">
+      <div class="kj-input-wrap">
+        <i class="ti ti-lock kj-input-icon" aria-hidden="true"></i>
+        <input class="kj-input" type="password" placeholder="パスワード" id="pw">
+        <i class="ti ti-eye kj-eye" aria-hidden="true" onclick="togglePw()"></i>
+      </div>
+      <button class="kj-btn" onclick="doLogin()">ひらく</button>
+    </div>
+    <div class="kj-note">いつでもここで待ってるから</div>
+  </div>
+
+  <!-- HOME -->
+  <div class="kj-screen" id="s-home">
+    <div class="kj-header">
+      <div class="kj-hearts">
+        <span class="kj-heart">♡</span>
+        <span class="kj-heart">♡</span>
+        <span class="kj-heart">♡</span>
+      </div>
+      <div class="kj-logo">ココロの羽</div>
+      <div class="kj-logo-sub">どんなに遠く離れても</div>
+    </div>
+    <div class="kj-sec">
+      <div class="kj-sec-label">TODAY</div>
+      <div class="kj-today">
+        <div class="kj-today-date">2025年6月22日</div>
+        <div class="kj-today-text">遠くにいても、きみのことを<br>いつも考えてるよ。</div>
+      </div>
+    </div>
+    <div class="kj-sec">
+      <div class="kj-sec-label">新着メッセージ</div>
+      <div class="kj-msg">
+        <span class="kj-msg-tag">不安なとき</span>
+        <div class="kj-msg-text">大丈夫。うまくいかないことがあっても、それはきみが弱いんじゃない。ちゃんと受け止めてるよ。</div>
+        <div class="kj-msg-time">今日 21:30</div>
+      </div>
+      <div class="kj-msg">
+        <span class="kj-msg-tag">落ち込んだとき</span>
+        <div class="kj-msg-text">今日も一日、よく頑張ったね。それだけでじゅうぶん。</div>
+        <div class="kj-msg-time">昨日 22:10</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LETTER -->
+  <div class="kj-screen" id="s-letter">
+    <div class="kj-sub-header">
+      <div class="kj-sub-title">手紙</div>
+      <div class="kj-sub-desc">淋しい夜には、いつでも</div>
+    </div>
+    <div class="kj-cat-row">
+      <div class="kj-cat active">すべて</div>
+      <div class="kj-cat">不安なとき</div>
+      <div class="kj-cat">落ち込んだとき</div>
+      <div class="kj-cat">疲れたとき</div>
+      <div class="kj-cat">会いたいとき</div>
+    </div>
+    <div class="kj-letter-list">
+      <div class="kj-letter-card">
+        <span class="kj-letter-tag">不安なとき</span>
+        <div class="kj-letter-text">きみが不安になるのは、それだけ真剣に生きてる証拠だよ。大丈夫、ちゃんとそばにいるから。</div>
+        <div class="kj-letter-foot"><span class="kj-letter-date">6月20日</span><span class="kj-unread"></span></div>
+      </div>
+      <div class="kj-letter-card">
+        <span class="kj-letter-tag">落ち込んだとき</span>
+        <div class="kj-letter-text">落ち込むことがあっても、きみはちゃんとここにいる。それだけで、ぼくはうれしい。</div>
+        <div class="kj-letter-foot"><span class="kj-letter-date">6月18日</span></div>
+      </div>
+      <div class="kj-letter-card">
+        <span class="kj-letter-tag">疲れたとき</span>
+        <div class="kj-letter-text">今日はもう何もしなくていい。ただ、ゆっくり休んで。</div>
+        <div class="kj-letter-foot"><span class="kj-letter-date">6月15日</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 本棚トップ -->
+  <div class="kj-screen" id="s-shelf">
+    <div class="kj-sub-header">
+      <div class="kj-sub-title">本棚</div>
+      <div class="kj-sub-desc">時の足音</div>
+    </div>
+    <div class="kj-shelf-menu">
+      <div class="kj-shelf-item" onclick="showSub('memory')">
+        <i class="ti ti-photo-heart" aria-hidden="true"></i>
+        <div class="kj-shelf-item-name">思い出</div>
+        <div class="kj-shelf-item-count">12枚</div>
+      </div>
+      <div class="kj-shelf-item" onclick="showSub('likes')">
+        <i class="ti ti-heart" aria-hidden="true"></i>
+        <div class="kj-shelf-item-name">好きなところ</div>
+        <div class="kj-shelf-item-count">38個</div>
+      </div>
+      <div class="kj-shelf-item" onclick="showSub('diary')">
+        <i class="ti ti-notebook" aria-hidden="true"></i>
+        <div class="kj-shelf-item-name">日記</div>
+        <div class="kj-shelf-item-count">7件</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 思い出 -->
+  <div class="kj-screen" id="s-memory">
+    <div class="kj-shelf-back" onclick="backToShelf()">
+      <i class="ti ti-chevron-left" aria-hidden="true"></i>本棚へ戻る
+    </div>
+    <div class="kj-sub-header">
+      <div class="kj-sub-title">思い出</div>
+      <div class="kj-sub-desc">Million Films</div>
+    </div>
+    <div class="kj-mem-list">
+      <div class="kj-mem-card">
+        <div class="kj-mem-photo">🌸</div>
+        <div class="kj-mem-body">
+          <div class="kj-mem-caption">初めて二人で行った公園。桜がきれいで、ずっと歩いてたね。きみが「もう少しだけ」って言い続けてたの、おぼえてる。</div>
+          <div class="kj-mem-date">2024年4月5日</div>
+        </div>
+      </div>
+      <div class="kj-mem-card">
+        <div class="kj-mem-photo">🍜</div>
+        <div class="kj-mem-body">
+          <div class="kj-mem-caption">二人で食べたラーメン。きみが「辛い」って言いながら全部食べてたのがかわいかった。</div>
+          <div class="kj-mem-date">2024年11月22日</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 好きなところ -->
+  <div class="kj-screen" id="s-likes">
+    <div class="kj-shelf-back" onclick="backToShelf()">
+      <i class="ti ti-chevron-left" aria-hidden="true"></i>本棚へ戻る
+    </div>
+    <div class="kj-sub-header">
+      <div class="kj-sub-title">好きなところ</div>
+      <div class="kj-sub-desc">ここにしか咲かない花、またひとつ</div>
+    </div>
+    <div class="kj-likes">
+      <div class="kj-like-card">
+        <span class="kj-like-num">01</span>
+        <span class="kj-like-text">感受性が豊かで、小さなことにも心を動かせるところ</span>
+      </div>
+      <div class="kj-like-card">
+        <span class="kj-like-num">02</span>
+        <span class="kj-like-text">一生懸命に毎日を過ごしているところ</span>
+      </div>
+      <div class="kj-like-card">
+        <span class="kj-like-num">03</span>
+        <span class="kj-like-text">笑うと目が細くなるところ</span>
+      </div>
+      <div class="kj-like-card">
+        <span class="kj-like-num">04</span>
+        <span class="kj-like-text">不器用なのに、いつも誰かのために頑張れるところ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 日記 -->
+  <div class="kj-screen" id="s-diary">
+    <div class="kj-shelf-back" onclick="backToShelf()">
+      <i class="ti ti-chevron-left" aria-hidden="true"></i>本棚へ戻る
+    </div>
+    <div class="kj-sub-header">
+      <div class="kj-sub-title">日記</div>
+      <div class="kj-sub-desc">空見るたびに想う君のこと</div>
+    </div>
+    <div class="kj-diary-list">
+      <div class="kj-diary-card">
+        <div class="kj-diary-date">6月21日（金）</div>
+        <div class="kj-diary-title">今日は久しぶりに晴れた</div>
+        <div class="kj-diary-text">朝から天気がよくて、窓を開けたら風が気持ちよかった。きみが好きそうな空だったから、写真撮っておけばよかったな。仕事は少し忙しかったけど、なんとかなった。夜ごはんはパスタを作った。</div>
+      </div>
+      <div class="kj-diary-card">
+        <div class="kj-diary-date">6月18日（火）</div>
+        <div class="kj-diary-title">最近ハマっていること</div>
+        <div class="kj-diary-text">最近、夜寝る前に本を読むのが習慣になってきた。きみに勧めてもらったやつ、ようやく読み始めたよ。思ったより面白くて、つい夜更かしした。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- お楽しみ -->
+  <div class="kj-screen" id="s-novel">
+    <div class="kj-sub-header">
+      <div class="kj-sub-title">お楽しみ</div>
+      <div class="kj-sub-desc">One Song From Two Hearts</div>
+    </div>
+    <div class="kj-novel-list">
+      <div class="kj-novel-card">
+        <span class="kj-novel-new">NEW</span>
+        <div class="kj-novel-title">春の終わりに、きみのことを思った</div>
+        <div class="kj-novel-preview">桜が散り始めた頃、彼女はいつも少し寂しそうな顔をする。それが好きだ、なんて言ったら怒られるかな。でも本当のことだから仕方ない——</div>
+        <div class="kj-novel-foot">
+          <span class="kj-novel-date">6月21日</span>
+          <span class="kj-novel-read">続きを読む →</span>
+        </div>
+      </div>
+      <div class="kj-novel-card">
+        <div class="kj-novel-title">雨の日の話</div>
+        <div class="kj-novel-preview">雨が降ると、なんとなく連絡したくなる。理由はよくわからないけど、きっときみも同じだといいな、と思いながら画面を見ている。</div>
+        <div class="kj-novel-foot">
+          <span class="kj-novel-date">5月14日</span>
+          <span class="kj-novel-read">続きを読む →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV（ログイン画面では非表示） -->
+  <nav class="kj-nav" id="main-nav" style="display:none;">
+    <button class="kj-nav-btn active" onclick="show('home',this)">
+      <i class="ti ti-home" aria-hidden="true"></i>
+      ホーム
+    </button>
+    <button class="kj-nav-btn" onclick="show('letter',this)">
+      <i class="ti ti-mail-heart" aria-hidden="true"></i>
+      手紙
+    </button>
+    <button class="kj-nav-btn" onclick="show('shelf',this)">
+      <i class="ti ti-books" aria-hidden="true"></i>
+      本棚
+    </button>
+    <button class="kj-nav-btn" onclick="show('novel',this)">
+      <i class="ti ti-book-2" aria-hidden="true"></i>
+      お楽しみ
+    </button>
+  </nav>
+</div>
+
+<script>
+  function togglePw(){
+    var i=document.getElementById('pw');
+    var icon=document.querySelector('.kj-eye');
+    if(i.type==='password'){
+      i.type='text';
+      icon.classList.replace('ti-eye','ti-eye-off');
+    } else {
+      i.type='password';
+      icon.classList.replace('ti-eye-off','ti-eye');
+    }
+  }
+
+  function doLogin(){
+    var v=document.getElementById('pw').value;
+    if(v.length>0){
+      document.getElementById('s-login').style.display='none';
+      document.getElementById('main-nav').style.display='flex';
+      show('home', document.querySelector('.kj-nav-btn'));
+    }
+  }
+
+  function show(id, el){
+    document.querySelectorAll('.kj-screen').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.kj-nav-btn').forEach(n=>n.classList.remove('active'));
+    document.getElementById('s-'+id).classList.add('active');
+    el.classList.add('active');
+  }
+
+  function showSub(id){
+    document.querySelectorAll('.kj-screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('s-'+id).classList.add('active');
+  }
+
+  function backToShelf(){
+    document.querySelectorAll('.kj-screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('s-shelf').classList.add('active');
+  }
+</script>
+</body>
+</html>
