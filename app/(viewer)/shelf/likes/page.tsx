@@ -24,12 +24,12 @@ export default async function LikesPage() {
           likes.map((like, index) => (
             <article
               key={like.id}
-              className="mb-2.5 flex items-baseline gap-3 rounded-[18px] border border-border bg-card px-5 py-[18px]"
+              className="mb-2.5 flex items-start gap-3 rounded-[18px] border border-border bg-card px-5 py-[18px]"
             >
-              <span className="min-w-7 font-display text-xl text-accent-light">
+              <span className="min-w-7 shrink-0 font-display text-xl text-accent-light">
                 {formatLikeNumber(index)}
               </span>
-              <p className="text-sm leading-[1.7] text-text">{like.body}</p>
+              <p className="whitespace-pre-wrap text-sm leading-[1.7] text-text">{like.body}</p>
             </article>
           ))
         ) : (

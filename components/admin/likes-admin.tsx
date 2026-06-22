@@ -8,7 +8,7 @@ import {
   AdminIconButton,
   AdminPageHeader,
   AdminPrimaryButton,
-  adminInputClass,
+  adminTextareaClass,
 } from "@/components/admin/ui";
 import { createLike, deleteLike } from "@/lib/actions/admin/likes";
 import { formatLikeNumber } from "@/lib/format";
@@ -34,11 +34,11 @@ export function LikesAdmin({ likes }: { likes: Like[] }) {
           <AdminCard title="新規追加">
             <form action={createLike} className="p-5">
               <AdminField label="好きなところ">
-                <input
+                <textarea
                   name="body"
-                  type="text"
-                  placeholder="一言で入力…"
-                  className={adminInputClass}
+                  rows={4}
+                  placeholder="入力…"
+                  className={adminTextareaClass}
                   required
                 />
               </AdminField>
@@ -77,7 +77,9 @@ export function LikesAdmin({ likes }: { likes: Like[] }) {
                       <td className="px-4 py-3 font-medium text-[#E8C5A0]">
                         {formatLikeNumber(index)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-[#444]">{like.body}</td>
+                      <td className="px-4 py-3 text-sm text-[#444]">
+                        <p className="whitespace-pre-wrap">{like.body}</p>
+                      </td>
                       <td className="px-4 py-3">
                         <form action={deleteLike}>
                           <input type="hidden" name="id" value={like.id} />
