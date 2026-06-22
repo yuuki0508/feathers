@@ -10,19 +10,72 @@ import {
   AdminPrimaryButton,
   adminTextareaClass,
 } from "@/components/admin/ui";
-import { createLike, deleteLike } from "@/lib/actions/admin/likes";
+import { createLike, deleteLike, updateLike } from "@/lib/actions/admin/likes";
 import { formatLikeNumber } from "@/lib/format";
 import type { Like } from "@/lib/types/database";
 
+function LikeForm({
+  editing,
+  onCancel,
+}: {
+  editing?: Like | null;
+  onCancel: () => void;
+}) {
+  return (
+    <AdminCard title={editing ? "好きなところを編集" : "新規追加"}>
+      <form action={editing ? updateLike : createLike} className="p-5">
+        {editing ? <input type="hidden" name="id" value={editing.id} /> : null}
+
+        <AdminField label="好きなところ">
+          <textarea
+            name="body"
+            rows={4}
+            defaultValue={editing?.body ?? ""}
+            placeholder="入力…"
+            className={adminTextareaClass}
+            required
+          />
+        </AdminField>
+
+        <div className="mt-4 flex justify-end gap-2.5">
+          <AdminGhostButton type="button" onClick={onCancel}>
+            キャンセル
+          </AdminGhostButton>
+          <AdminPrimaryButton type="submit">
+            <i className="ti ti-check" />
+            保存
+          </AdminPrimaryButton>
+        </div>
+      </form>
+    </AdminCard>
+  );
+}
+
 export function LikesAdmin({ likes }: { likes: Like[] }) {
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<Like | null>(null);
+
+  const openCreate = () => {
+    setEditing(null);
+    setShowForm(true);
+  };
+
+  const openEdit = (like: Like) => {
+    setEditing(like);
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setEditing(null);
+    setShowForm(false);
+  };
 
   return (
     <>
       <AdminPageHeader
         title="好きなところ"
         action={
-          <AdminPrimaryButton type="button" onClick={() => setShowForm(true)}>
+          <AdminPrimaryButton type="button" onClick={openCreate}>
             <i className="ti ti-plus" />
             追加
           </AdminPrimaryButton>
@@ -30,30 +83,7 @@ export function LikesAdmin({ likes }: { likes: Like[] }) {
       />
 
       <div className="p-7">
-        {showForm ? (
-          <AdminCard title="新規追加">
-            <form action={createLike} className="p-5">
-              <AdminField label="好きなところ">
-                <textarea
-                  name="body"
-                  rows={4}
-                  placeholder="入力…"
-                  className={adminTextareaClass}
-                  required
-                />
-              </AdminField>
-              <div className="mt-4 flex justify-end gap-2.5">
-                <AdminGhostButton type="button" onClick={() => setShowForm(false)}>
-                  キャンセル
-                </AdminGhostButton>
-                <AdminPrimaryButton type="submit">
-                  <i className="ti ti-check" />
-                  保存
-                </AdminPrimaryButton>
-              </div>
-            </form>
-          </AdminCard>
-        ) : null}
+        {showForm ? <LikeForm editing={editing} onCancel={closeForm} /> : null}
 
         <AdminCard title="一覧">
           <div className="overflow-x-auto">
@@ -78,13 +108,23 @@ export function LikesAdmin({ likes }: { likes: Like[] }) {
                         {formatLikeNumber(index)}
                       </td>
                       <td className="px-4 py-3 text-sm text-[#444]">
-                        <p className="whitespace-pre-wrap">{like.body}</p>
+                        <p className="line-clamp-3 whitespace-pre-wrap">{like.body}</p>
                       </td>
                       <td className="px-4 py-3">
-                        <form action={deleteLike}>
-                          <input type="hidden" name="id" value={like.id} />
-                          <AdminIconButton icon="ti-trash" danger label="削除" />
-                        </form>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openEdit(like)}
+                            className="p-1 text-[#888] hover:text-[#333]"
+                            aria-label="編集"
+                          >
+                            <i className="ti ti-edit" />
+                          </button>
+                          <form action={deleteLike}>
+                            <input type="hidden" name="id" value={like.id} />
+                            <AdminIconButton icon="ti-trash" danger label="削除" />
+                          </form>
+                        </div>
                       </td>
                     </tr>
                   ))

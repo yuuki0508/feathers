@@ -7,6 +7,7 @@ import { failAdmin } from "@/lib/actions/admin/utils";
 function revalidateAdmin() {
   revalidatePath("/admin/likes");
   revalidatePath("/shelf/likes");
+  revalidatePath("/");
 }
 
 export async function createLike(formData: FormData) {
@@ -28,6 +29,24 @@ export async function createLike(formData: FormData) {
     body: body.trim(),
     display_order: nextOrder,
   });
+
+  if (error) failAdmin(error.message);
+  revalidateAdmin();
+}
+
+export async function updateLike(formData: FormData) {
+  const id = formData.get("id");
+  const body = formData.get("body");
+  if (typeof id !== "string" || id.length === 0) failAdmin("IDが不正です");
+  if (typeof body !== "string" || body.trim().length === 0) {
+    failAdmin("内容を入力してください");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("likes")
+    .update({ body: body.trim() })
+    .eq("id", id);
 
   if (error) failAdmin(error.message);
   revalidateAdmin();
