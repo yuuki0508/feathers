@@ -72,6 +72,9 @@ export function AnalyticsDashboard({
     <>
       <AdminPageHeader title="アクセス分析" />
       <div className="p-7">
+        <p className="mb-5 text-xs leading-relaxed text-[#999]">
+          管理画面にログインした状態での閲覧はカウントされません。投稿の確認は管理ログイン後に閲覧画面を開いてください。
+        </p>
         <div className="mb-6 grid grid-cols-1 gap-3.5 md:grid-cols-3">
           <AdminCard title="">
             <div className="p-4">
