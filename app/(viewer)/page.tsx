@@ -2,7 +2,7 @@ import { AccessLogTracker } from "@/components/viewer/access-log-tracker";
 import { HomeFeed } from "@/components/viewer/home-feed";
 import { ServiceHeader } from "@/components/viewer/service-header";
 import { buildFeedItems } from "@/lib/feed-items";
-import { formatFullDate } from "@/lib/format";
+import { formatFullDate, getTodayDateString } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import type { TodayMessage } from "@/lib/types/database";
 
@@ -51,7 +51,7 @@ export default async function HomePage() {
           <p className="mb-2.5 text-[11px] tracking-wide text-text-muted">
             {todayMessage?.display_date
               ? formatFullDate(todayMessage.display_date)
-              : formatFullDate(new Date().toISOString())}
+              : formatFullDate(getTodayDateString())}
           </p>
           <p className="whitespace-pre-wrap text-base leading-8 text-text">
             {todayMessage?.body ?? "今日のメッセージはまだありません。"}

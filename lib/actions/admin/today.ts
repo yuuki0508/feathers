@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getTodayDateString } from "@/lib/format";
 import { revalidatePath } from "next/cache";
 import { failAdmin } from "@/lib/actions/admin/utils";
 
@@ -11,7 +12,7 @@ export async function updateTodayMessage(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getTodayDateString();
   const { data: existing } = await supabase
     .from("today_message")
     .select("id")

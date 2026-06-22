@@ -6,7 +6,7 @@ import {
   adminTextareaClass,
 } from "@/components/admin/ui";
 import { updateTodayMessage } from "@/lib/actions/admin/today";
-import { formatFullDate } from "@/lib/format";
+import { formatFullDate, getTodayDateString } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import type { TodayMessage } from "@/lib/types/database";
 
@@ -21,7 +21,7 @@ export default async function AdminTodayPage() {
 
   const displayDate = todayMessage?.display_date
     ? formatFullDate(todayMessage.display_date)
-    : formatFullDate(new Date().toISOString());
+    : formatFullDate(getTodayDateString());
 
   return (
     <>
