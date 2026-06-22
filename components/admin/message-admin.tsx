@@ -176,8 +176,8 @@ export function MessageAdmin({
                           ) : null,
                         )}
                       </td>
-                      <td className="max-w-md px-4 py-3 align-middle text-sm text-[#444]">
-                        {message.body}
+                      <td className="max-w-md px-4 py-3 align-middle text-sm leading-relaxed text-[#444]">
+                        <p className="line-clamp-3 whitespace-pre-wrap">{message.body}</p>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 align-middle text-sm text-[#444]">
                         {formatShortDate(message.created_at)}
