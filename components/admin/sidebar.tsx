@@ -34,17 +34,36 @@ const NAV_SECTIONS = [
   },
 ] as const;
 
-export function AdminSidebar() {
+type AdminSidebarProps = {
+  isOpen?: boolean;
+  onClose?: () => void;
+};
+
+export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-[220px] shrink-0 flex-col bg-[#1E1E2E]">
-      <div className="border-b border-[#2E2E42] px-5 pb-5 pt-6">
-        <p className="text-base font-medium tracking-wide text-white">ココロの羽 — 管理</p>
-        <p className="mt-1 text-[11px] text-[#888]">Admin Panel</p>
+    <aside
+      className={`fixed inset-y-0 left-0 z-50 flex w-[min(280px,85vw)] shrink-0 flex-col bg-[#1E1E2E] transition-transform duration-200 md:static md:z-auto md:w-[220px] md:translate-x-0 ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
+      <div className="flex items-start justify-between border-b border-[#2E2E42] px-5 pb-5 pt-6">
+        <div className="min-w-0">
+          <p className="text-base font-medium tracking-wide text-white">ココロの羽 — 管理</p>
+          <p className="mt-1 text-[11px] text-[#888]">Admin Panel</p>
+        </div>
+        <button
+          type="button"
+          aria-label="メニューを閉じる"
+          onClick={onClose}
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#888] hover:bg-[#2E2E42] hover:text-white md:hidden"
+        >
+          <i className="ti ti-x text-lg" />
+        </button>
       </div>
 
-      <nav className="flex-1 py-3">
+      <nav className="flex-1 overflow-y-auto py-3">
         {NAV_SECTIONS.map((section) => (
           <div key={section.title}>
             <p className="px-5 pb-1.5 pt-4 text-[10px] tracking-[0.12em] text-[#555]">
@@ -60,6 +79,7 @@ export function AdminSidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={onClose}
                   className={`flex items-center gap-2.5 border-l-[3px] px-5 py-2.5 text-[13px] ${
                     active
                       ? "border-[#C4866A] bg-[#2E2E42] text-white"

@@ -7,6 +7,7 @@ import {
   AdminGhostButton,
   AdminIconButton,
   AdminPageHeader,
+  AdminPageContent,
   AdminPrimaryButton,
   adminInputClass,
 } from "@/components/admin/ui";
@@ -41,13 +42,13 @@ function SettingsList({
 
   return (
     <AdminCard title={title} description={description}>
-      <div className="flex flex-col gap-2 p-5">
+      <div className="flex flex-col gap-2 p-4 sm:p-5">
         {items.map((item) =>
           editingId === item.id ? (
             <form
               key={item.id}
               action={updateAction}
-              className="flex items-center gap-2 rounded-lg border border-[#F0F0F0] bg-[#FAFAFA] px-3.5 py-2.5"
+              className="flex flex-col gap-2 rounded-lg border border-[#F0F0F0] bg-[#FAFAFA] px-3.5 py-2.5 sm:flex-row sm:items-center"
             >
               <input type="hidden" name="id" value={item.id} />
               <input
@@ -64,7 +65,7 @@ function SettingsList({
           ) : (
             <div
               key={item.id}
-              className="flex items-center gap-2 rounded-lg border border-[#F0F0F0] bg-[#FAFAFA] px-3.5 py-2.5"
+              className="flex flex-wrap items-center gap-2 rounded-lg border border-[#F0F0F0] bg-[#FAFAFA] px-3.5 py-2.5"
             >
               <span className="flex-1 text-sm text-[#333]">{item.name}</span>
               <span className="mr-2 text-xs text-[#aaa]">{item.count}件</span>
@@ -85,7 +86,7 @@ function SettingsList({
         )}
       </div>
 
-      <form action={createAction} className="flex gap-2 px-5 pb-5">
+      <form action={createAction} className="flex flex-col gap-2 px-4 pb-5 sm:flex-row sm:px-5">
         <input
           name="name"
           type="text"
@@ -112,7 +113,7 @@ export function SettingsAdmin({
   return (
     <>
       <AdminPageHeader title="カテゴリ・タグ管理" />
-      <div className="p-7">
+      <AdminPageContent>
         <SettingsList
           title="カテゴリ"
           description="彼女の手紙画面で絞り込みに使われます"
@@ -132,7 +133,7 @@ export function SettingsAdmin({
           deleteAction={deleteTag}
           placeholder="新しいタグ名を入力…"
         />
-      </div>
+      </AdminPageContent>
     </>
   );
 }

@@ -7,6 +7,7 @@ import {
   AdminGhostButton,
   AdminIconButton,
   AdminPageHeader,
+  AdminPageContent,
   AdminPrimaryButton,
   adminInputClass,
   adminTextareaClass,
@@ -60,7 +61,7 @@ function DiaryForm({
           </AdminField>
         </div>
 
-        <div className="flex justify-end gap-2.5 md:col-span-2">
+        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end md:col-span-2">
           <AdminGhostButton type="button" onClick={onCancel}>
             キャンセル
           </AdminGhostButton>
@@ -96,7 +97,7 @@ export function DiaryAdmin({ diaries }: { diaries: Diary[] }) {
         }
       />
 
-      <div className="p-7">
+      <AdminPageContent>
         {showForm ? (
           <DiaryForm
             editing={editing}
@@ -167,7 +168,7 @@ export function DiaryAdmin({ diaries }: { diaries: Diary[] }) {
             </table>
           </div>
         </AdminCard>
-      </div>
+      </AdminPageContent>
     </>
   );
 }

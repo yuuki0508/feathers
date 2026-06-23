@@ -5,11 +5,15 @@ type AdminPageHeaderProps = {
 
 export function AdminPageHeader({ title, action }: AdminPageHeaderProps) {
   return (
-    <div className="flex items-center justify-between border-b border-[#E5E5E5] bg-white px-7 py-4">
+    <div className="flex flex-col gap-3 border-b border-[#E5E5E5] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between md:px-7 md:py-4">
       <h1 className="text-base font-medium text-[#333]">{title}</h1>
-      {action}
+      {action ? <div className="shrink-0">{action}</div> : null}
     </div>
   );
+}
+
+export function AdminPageContent({ children }: { children: React.ReactNode }) {
+  return <div className="p-4 md:p-7">{children}</div>;
 }
 
 export function AdminCard({
@@ -25,14 +29,14 @@ export function AdminCard({
 }) {
   return (
     <div className="mb-6 overflow-hidden rounded-[10px] border border-[#E5E5E5] bg-white">
-      <div className="flex items-center justify-between border-b border-[#F0F0F0] px-5 py-4">
-        <div>
+      <div className="flex flex-col gap-3 border-b border-[#F0F0F0] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4">
+        <div className="min-w-0">
           <p className="text-sm font-medium text-[#333]">{title}</p>
           {description ? (
             <p className="mt-0.5 text-xs text-[#999]">{description}</p>
           ) : null}
         </div>
-        {action}
+        {action ? <div className="shrink-0">{action}</div> : null}
       </div>
       {children}
     </div>

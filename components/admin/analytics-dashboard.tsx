@@ -14,6 +14,7 @@ import { useMemo, useState } from "react";
 import {
   AdminCard,
   AdminPageHeader,
+  AdminPageContent,
   AdminTag,
   adminInputClass,
 } from "@/components/admin/ui";
@@ -71,7 +72,7 @@ export function AnalyticsDashboard({
   return (
     <>
       <AdminPageHeader title="アクセス分析" />
-      <div className="p-7">
+      <AdminPageContent>
         <p className="mb-5 text-xs leading-relaxed text-[#999]">
           管理画面にログインした状態での閲覧はカウントされません。投稿の確認は管理ログイン後に閲覧画面を開いてください。
         </p>
@@ -104,8 +105,8 @@ export function AnalyticsDashboard({
             <div className="space-y-2.5 p-5">
               {categoryCounts.length > 0 ? (
                 categoryCounts.map((item) => (
-                  <div key={item.name} className="flex items-center gap-2.5">
-                    <div className="w-24 shrink-0 text-right text-xs text-[#555]">
+                  <div key={item.name} className="flex items-center gap-2 sm:gap-2.5">
+                    <div className="w-16 shrink-0 truncate text-right text-xs text-[#555] sm:w-24">
                       {item.name}
                     </div>
                     <div className="h-5 flex-1 rounded bg-[#F5F5F5]">
@@ -212,11 +213,11 @@ export function AnalyticsDashboard({
         <AdminCard
           title="日別アクセスログ"
           action={
-            <div className="flex gap-2">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
               <select
                 value={pageType}
                 onChange={(event) => setPageType(event.target.value as PageTypeFilter)}
-                className={`${adminInputClass} !w-auto py-1.5 text-xs`}
+                className={`${adminInputClass} w-full py-1.5 text-xs sm:!w-auto`}
               >
                 <option value="all">すべてのページ</option>
                 <option value="手紙">手紙</option>
@@ -229,7 +230,7 @@ export function AnalyticsDashboard({
               <select
                 value={period}
                 onChange={(event) => setPeriod(event.target.value as AnalyticsPeriod)}
-                className={`${adminInputClass} !w-auto py-1.5 text-xs`}
+                className={`${adminInputClass} w-full py-1.5 text-xs sm:!w-auto`}
               >
                 <option value="30days">直近30日</option>
                 <option value="7days">直近7日</option>
@@ -249,7 +250,7 @@ export function AnalyticsDashboard({
                     <button
                       type="button"
                       onClick={() => toggleDate(day.date)}
-                      className="flex w-full items-center gap-2.5 bg-[#FAFAFA] px-5 py-2.5 text-left"
+                      className="flex w-full flex-wrap items-center gap-2 bg-[#FAFAFA] px-4 py-2.5 text-left sm:gap-2.5 sm:px-5"
                     >
                       <i
                         className="ti ti-chevron-right text-sm text-[#ccc]"
@@ -274,9 +275,9 @@ export function AnalyticsDashboard({
                     </button>
 
                     {isOpen ? (
-                      <div className="flex flex-col gap-1.5 px-5 py-2 pb-3 pl-11">
+                      <div className="flex flex-col gap-1.5 px-4 py-2 pb-3 pl-8 sm:px-5 sm:pl-11">
                         {day.entries.map((entry) => (
-                          <div key={entry.id} className="flex items-center gap-3">
+                          <div key={entry.id} className="flex flex-wrap items-center gap-2 sm:gap-3">
                             <span className="min-w-[42px] text-[11px] text-[#aaa]">
                               {formatLogTime(entry.accessed_at)}
                             </span>
@@ -300,7 +301,7 @@ export function AnalyticsDashboard({
             )}
           </div>
         </AdminCard>
-      </div>
+      </AdminPageContent>
     </>
   );
 }

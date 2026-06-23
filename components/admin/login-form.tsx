@@ -9,8 +9,8 @@ export function AdminLoginForm() {
   const [state, formAction, pending] = useActionState(adminLoginAction, null);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#1E1E2E] px-6">
-      <div className="w-full max-w-[400px] rounded-[12px] border border-[#2E2E42] bg-[#252536] p-8">
+    <div className="flex min-h-screen items-center justify-center bg-[#1E1E2E] px-4 py-6 sm:px-6">
+      <div className="w-full max-w-[400px] rounded-[12px] border border-[#2E2E42] bg-[#252536] p-6 sm:p-8">
         <div className="mb-8 text-center">
           <p className="text-lg font-medium tracking-wide text-white">ココロの羽 — 管理</p>
           <p className="mt-1 text-xs text-[#888]">Admin Panel</p>

@@ -7,6 +7,7 @@ import {
   AdminGhostButton,
   AdminIconButton,
   AdminPageHeader,
+  AdminPageContent,
   AdminPrimaryButton,
   adminInputClass,
   adminTextareaClass,
@@ -49,7 +50,7 @@ function NovelForm({
           />
         </AdminField>
 
-        <div className="flex justify-end gap-2.5">
+        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
           <AdminGhostButton type="button" onClick={onCancel}>
             キャンセル
           </AdminGhostButton>
@@ -85,7 +86,7 @@ export function NovelAdmin({ novels }: { novels: Novel[] }) {
         }
       />
 
-      <div className="p-7">
+      <AdminPageContent>
         {showForm ? (
           <NovelForm
             editing={editing}
@@ -151,7 +152,7 @@ export function NovelAdmin({ novels }: { novels: Novel[] }) {
             </table>
           </div>
         </AdminCard>
-      </div>
+      </AdminPageContent>
     </>
   );
 }

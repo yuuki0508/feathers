@@ -2,6 +2,7 @@ import {
   AdminCard,
   AdminField,
   AdminPageHeader,
+  AdminPageContent,
   AdminPrimaryButton,
   adminTextareaClass,
 } from "@/components/admin/ui";
@@ -26,7 +27,7 @@ export default async function AdminTodayPage() {
   return (
     <>
       <AdminPageHeader title="今日のひとこと" />
-      <div className="p-7">
+      <AdminPageContent>
         <AdminCard title="現在の表示">
           <div className="p-5">
             <p className="mb-1.5 text-[11px] text-[#C4866A]">{displayDate}</p>
@@ -44,7 +45,7 @@ export default async function AdminTodayPage() {
                   className={adminTextareaClass}
                 />
               </AdminField>
-              <div className="mt-4 flex justify-end">
+              <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                 <AdminPrimaryButton type="submit">
                   <i className="ti ti-check" />
                   更新する
@@ -53,7 +54,7 @@ export default async function AdminTodayPage() {
             </form>
           </div>
         </AdminCard>
-      </div>
+      </AdminPageContent>
     </>
   );
 }

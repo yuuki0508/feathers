@@ -7,6 +7,7 @@ import {
   AdminGhostButton,
   AdminIconButton,
   AdminPageHeader,
+  AdminPageContent,
   AdminPrimaryButton,
   adminTextareaClass,
 } from "@/components/admin/ui";
@@ -37,7 +38,7 @@ function LikeForm({
           />
         </AdminField>
 
-        <div className="mt-4 flex justify-end gap-2.5">
+        <div className="mt-4 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
           <AdminGhostButton type="button" onClick={onCancel}>
             キャンセル
           </AdminGhostButton>
@@ -82,7 +83,7 @@ export function LikesAdmin({ likes }: { likes: Like[] }) {
         }
       />
 
-      <div className="p-7">
+      <AdminPageContent>
         {showForm ? <LikeForm editing={editing} onCancel={closeForm} /> : null}
 
         <AdminCard title="一覧">
@@ -139,7 +140,7 @@ export function LikesAdmin({ likes }: { likes: Like[] }) {
             </table>
           </div>
         </AdminCard>
-      </div>
+      </AdminPageContent>
     </>
   );
 }
