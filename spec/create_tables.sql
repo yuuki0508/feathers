@@ -48,6 +48,7 @@ create table memories (
   id uuid primary key default gen_random_uuid(),
   caption text not null,
   photo_url text,
+  photo_url_2 text,
   memory_date date,
   created_at timestamptz default now(),
   updated_at timestamptz default now()

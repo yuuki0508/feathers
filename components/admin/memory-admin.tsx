@@ -46,9 +46,19 @@ function MemoryForm({
           />
         </AdminField>
 
-        <AdminField label="写真">
+        <AdminField label="写真1" hint="※最大2枚まで">
           <input type="file" name="photo" accept="image/*" className={adminInputClass} />
         </AdminField>
+
+        <AdminField label="写真2" hint="※任意">
+          <input type="file" name="photo_2" accept="image/*" className={adminInputClass} />
+        </AdminField>
+
+        {editing?.photo_url || editing?.photo_url_2 ? (
+          <p className="text-xs text-[#999] md:col-span-2">
+            編集時、写真を選び直さない場合は現在の画像がそのまま残ります。
+          </p>
+        ) : null}
 
         <div className="md:col-span-2">
           <AdminField label="一言">
@@ -102,6 +112,7 @@ export function MemoryAdmin({ memories }: { memories: Memory[] }) {
       <AdminPageContent>
         {showForm ? (
           <MemoryForm
+            key={editing?.id ?? "create"}
             editing={editing}
             onCancel={() => {
               setEditing(null);

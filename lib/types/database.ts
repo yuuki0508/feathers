@@ -25,6 +25,7 @@ export type Memory = {
   id: string;
   caption: string;
   photo_url: string | null;
+  photo_url_2: string | null;
   memory_date: string | null;
   created_at: string;
   updated_at: string;

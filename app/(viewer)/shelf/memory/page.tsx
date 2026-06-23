@@ -15,10 +15,19 @@ export default async function MemoryPage() {
     .returns<Memory[]>();
 
   const memoriesWithPhotos = await Promise.all(
-    (memories ?? []).map(async (memory) => ({
-      ...memory,
-      signedPhotoUrl: await getSignedPhotoUrl(supabase, memory.photo_url),
-    })),
+    (memories ?? []).map(async (memory) => {
+      const photoUrls = (
+        await Promise.all([
+          getSignedPhotoUrl(supabase, memory.photo_url),
+          getSignedPhotoUrl(supabase, memory.photo_url_2),
+        ])
+      ).filter((url): url is string => !!url);
+
+      return {
+        ...memory,
+        photoUrls,
+      };
+    }),
   );
 
   return (
@@ -34,7 +43,7 @@ export default async function MemoryPage() {
               id={memory.id}
               caption={memory.caption}
               memoryDate={memory.memory_date}
-              photoUrl={memory.signedPhotoUrl}
+              photoUrls={memory.photoUrls}
             />
           ))
         ) : (
