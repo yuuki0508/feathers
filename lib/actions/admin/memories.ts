@@ -1,6 +1,7 @@
 "use server";
 
 import { randomUUID } from "crypto";
+import { parseFormDateString } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { failAdmin } from "@/lib/actions/admin/utils";
@@ -8,6 +9,7 @@ import { failAdmin } from "@/lib/actions/admin/utils";
 function revalidateAdmin() {
   revalidatePath("/admin/memory");
   revalidatePath("/shelf/memory");
+  revalidatePath("/");
 }
 
 async function uploadPhoto(formData: FormData): Promise<{ path?: string; error?: string }> {
@@ -44,8 +46,7 @@ export async function createMemory(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.from("memories").insert({
     caption: caption.trim(),
-    memory_date:
-      typeof memoryDate === "string" && memoryDate.length > 0 ? memoryDate : null,
+    memory_date: parseFormDateString(memoryDate),
     photo_url: upload.path ?? null,
   });
 
@@ -68,8 +69,7 @@ export async function updateMemory(formData: FormData) {
 
   const updates: Record<string, string | null> = {
     caption: caption.trim(),
-    memory_date:
-      typeof memoryDate === "string" && memoryDate.length > 0 ? memoryDate : null,
+    memory_date: parseFormDateString(memoryDate),
   };
 
   if (upload.path) {

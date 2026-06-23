@@ -13,7 +13,7 @@ import {
 } from "@/components/admin/ui";
 import { createNovel, deleteNovel, updateNovel } from "@/lib/actions/admin/novels";
 import { AdminTextareaWithCount } from "@/components/admin/textarea-with-count";
-import { formatShortDate } from "@/lib/format";
+import { formatShortDate, getTodayDateString, toDateInputValue } from "@/lib/format";
 import type { Novel } from "@/lib/types/database";
 
 function NovelForm({
@@ -25,8 +25,20 @@ function NovelForm({
 }) {
   return (
     <AdminCard title={editing ? "作品を編集" : "新規作品"}>
-      <form action={editing ? updateNovel : createNovel} className="grid gap-5 p-5">
+      <form action={editing ? updateNovel : createNovel} className="grid gap-5 p-5 md:grid-cols-2">
         {editing ? <input type="hidden" name="id" value={editing.id} /> : null}
+
+        <AdminField label="日付">
+          <input
+            type="date"
+            name="posted_date"
+            defaultValue={
+              editing ? toDateInputValue(editing.created_at) : getTodayDateString()
+            }
+            className={adminInputClass}
+            required
+          />
+        </AdminField>
 
         <AdminField label="タイトル">
           <input
@@ -39,7 +51,8 @@ function NovelForm({
           />
         </AdminField>
 
-        <AdminField label="本文">
+        <div className="md:col-span-2">
+          <AdminField label="本文">
           <AdminTextareaWithCount
             name="body"
             rows={10}
@@ -47,9 +60,10 @@ function NovelForm({
             placeholder="物語を書く…"
             required
           />
-        </AdminField>
+          </AdminField>
+        </div>
 
-        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end md:col-span-2">
           <AdminGhostButton type="button" onClick={onCancel}>
             キャンセル
           </AdminGhostButton>

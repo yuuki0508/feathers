@@ -1,12 +1,14 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { parseFormDateString } from "@/lib/format";
 import { revalidatePath } from "next/cache";
 import { failAdmin } from "@/lib/actions/admin/utils";
 
 function revalidateAdmin() {
   revalidatePath("/admin/diary");
   revalidatePath("/shelf/diary");
+  revalidatePath("/");
 }
 
 export async function createDiary(formData: FormData) {
@@ -25,10 +27,7 @@ export async function createDiary(formData: FormData) {
   const { error } = await supabase.from("diaries").insert({
     title: title.trim(),
     body: body.trim(),
-    diary_date:
-      typeof diaryDate === "string" && diaryDate.length > 0
-        ? diaryDate
-        : new Date().toISOString().slice(0, 10),
+    diary_date: parseFormDateString(diaryDate),
   });
 
   if (error) failAdmin(error.message);
@@ -55,10 +54,7 @@ export async function updateDiary(formData: FormData) {
     .update({
       title: title.trim(),
       body: body.trim(),
-      diary_date:
-        typeof diaryDate === "string" && diaryDate.length > 0
-          ? diaryDate
-          : new Date().toISOString().slice(0, 10),
+      diary_date: parseFormDateString(diaryDate),
     })
     .eq("id", id);
 

@@ -14,7 +14,7 @@ import {
 } from "@/components/admin/ui";
 import { createMessage, deleteMessage, updateMessage } from "@/lib/actions/admin/messages";
 import { AdminTextareaWithCount } from "@/components/admin/textarea-with-count";
-import { formatShortDate } from "@/lib/format";
+import { formatShortDate, getTodayDateString, toDateInputValue } from "@/lib/format";
 import type { Category, MessageWithTags, Tag } from "@/lib/types/database";
 
 type MessageFormProps = {
@@ -35,6 +35,18 @@ function MessageForm({ categories, tags, editing, onCancel }: MessageFormProps) 
       >
         {editing ? <input type="hidden" name="id" value={editing.id} /> : null}
 
+        <AdminField label="日付">
+          <input
+            type="date"
+            name="posted_date"
+            defaultValue={
+              editing ? toDateInputValue(editing.created_at) : getTodayDateString()
+            }
+            className={adminInputClass}
+            required
+          />
+        </AdminField>
+
         <AdminField label="カテゴリ" hint="※彼女の画面に表示">
           <select
             name="category_id"
@@ -50,20 +62,22 @@ function MessageForm({ categories, tags, editing, onCancel }: MessageFormProps) 
           </select>
         </AdminField>
 
-        <AdminField label="タグ" hint="※管理用・将来の検索用">
-          <select
-            name="tag_ids"
-            multiple
-            defaultValue={selectedTagIds}
-            className={`${adminInputClass} h-24`}
-          >
-            {tags.map((tag) => (
-              <option key={tag.id} value={tag.id}>
-                {tag.name}
-              </option>
-            ))}
-          </select>
-        </AdminField>
+        <div className="md:col-span-2">
+          <AdminField label="タグ" hint="※管理用・将来の検索用">
+            <select
+              name="tag_ids"
+              multiple
+              defaultValue={selectedTagIds}
+              className={`${adminInputClass} h-24`}
+            >
+              {tags.map((tag) => (
+                <option key={tag.id} value={tag.id}>
+                  {tag.name}
+                </option>
+              ))}
+            </select>
+          </AdminField>
+        </div>
 
         <div className="md:col-span-2">
           <AdminField label="本文">

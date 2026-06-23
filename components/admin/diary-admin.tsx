@@ -13,7 +13,7 @@ import {
   adminTextareaClass,
 } from "@/components/admin/ui";
 import { createDiary, deleteDiary, updateDiary } from "@/lib/actions/admin/diaries";
-import { formatDiaryDate, truncateText } from "@/lib/format";
+import { formatDiaryDate, getTodayDateString, truncateText } from "@/lib/format";
 import type { Diary } from "@/lib/types/database";
 
 function DiaryForm({
@@ -32,8 +32,9 @@ function DiaryForm({
           <input
             type="date"
             name="diary_date"
-            defaultValue={editing?.diary_date ?? ""}
+            defaultValue={editing?.diary_date ?? getTodayDateString()}
             className={adminInputClass}
+            required
           />
         </AdminField>
 

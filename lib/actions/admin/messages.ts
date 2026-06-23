@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { dateStringToJstNoonIso, parseFormDateString } from "@/lib/format";
 import { revalidatePath } from "next/cache";
 import { failAdmin } from "@/lib/actions/admin/utils";
 
@@ -39,9 +40,14 @@ export async function createMessage(formData: FormData) {
   }
 
   const supabase = await createClient();
+  const postedDate = parseFormDateString(formData.get("posted_date"));
   const { data, error } = await supabase
     .from("messages")
-    .insert({ body: body.trim(), category_id: categoryId })
+    .insert({
+      body: body.trim(),
+      category_id: categoryId,
+      created_at: dateStringToJstNoonIso(postedDate),
+    })
     .select("id")
     .single();
 
@@ -65,9 +71,14 @@ export async function updateMessage(formData: FormData) {
   }
 
   const supabase = await createClient();
+  const postedDate = parseFormDateString(formData.get("posted_date"));
   const { error } = await supabase
     .from("messages")
-    .update({ body: body.trim(), category_id: categoryId })
+    .update({
+      body: body.trim(),
+      category_id: categoryId,
+      created_at: dateStringToJstNoonIso(postedDate),
+    })
     .eq("id", id);
 
   if (error) failAdmin(error.message);

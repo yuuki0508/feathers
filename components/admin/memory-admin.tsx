@@ -17,7 +17,7 @@ import {
   deleteMemory,
   updateMemory,
 } from "@/lib/actions/admin/memories";
-import { formatFullDate } from "@/lib/format";
+import { formatFullDate, getTodayDateString } from "@/lib/format";
 import type { Memory } from "@/lib/types/database";
 
 function MemoryForm({
@@ -40,8 +40,9 @@ function MemoryForm({
           <input
             type="date"
             name="memory_date"
-            defaultValue={editing?.memory_date ?? ""}
+            defaultValue={editing?.memory_date ?? getTodayDateString()}
             className={adminInputClass}
+            required
           />
         </AdminField>
 

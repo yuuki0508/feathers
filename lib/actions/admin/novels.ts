@@ -1,12 +1,14 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { dateStringToJstNoonIso, parseFormDateString } from "@/lib/format";
 import { revalidatePath } from "next/cache";
 import { failAdmin } from "@/lib/actions/admin/utils";
 
 function revalidateAdmin() {
   revalidatePath("/admin/novel");
   revalidatePath("/novel");
+  revalidatePath("/");
 }
 
 export async function createNovel(formData: FormData) {
@@ -21,9 +23,11 @@ export async function createNovel(formData: FormData) {
   }
 
   const supabase = await createClient();
+  const postedDate = parseFormDateString(formData.get("posted_date"));
   const { error } = await supabase.from("novels").insert({
     title: title.trim(),
     body: body.trim(),
+    created_at: dateStringToJstNoonIso(postedDate),
   });
 
   if (error) failAdmin(error.message);
@@ -44,9 +48,14 @@ export async function updateNovel(formData: FormData) {
   }
 
   const supabase = await createClient();
+  const postedDate = parseFormDateString(formData.get("posted_date"));
   const { error } = await supabase
     .from("novels")
-    .update({ title: title.trim(), body: body.trim() })
+    .update({
+      title: title.trim(),
+      body: body.trim(),
+      created_at: dateStringToJstNoonIso(postedDate),
+    })
     .eq("id", id);
 
   if (error) failAdmin(error.message);

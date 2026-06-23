@@ -19,6 +19,30 @@ export function getTodayDateString(timeZone = APP_TIMEZONE): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date());
 }
 
+/** timestamptz を date 入力用 YYYY-MM-DD（日本時間）に変換 */
+export function toDateInputValue(isoString: string, timeZone = APP_TIMEZONE): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date(isoString));
+}
+
+/** フォームの日付値を YYYY-MM-DD に正規化（未入力時は今日） */
+export function parseFormDateString(
+  value: FormDataEntryValue | null,
+  timeZone = APP_TIMEZONE,
+): string {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+  return getTodayDateString(timeZone);
+}
+
+/** 選択日付の正午（JST）を timestamptz 用 ISO 文字列に変換 */
+export function dateStringToJstNoonIso(dateStr: string): string {
+  if (!parseCalendarDate(dateStr)) {
+    return new Date().toISOString();
+  }
+  return `${dateStr}T12:00:00+09:00`;
+}
+
 export function formatFullDate(dateStr: string): string {
   const calendar = parseCalendarDate(dateStr);
   if (calendar) {
