@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import {
   AdminCard,
   AdminField,
@@ -13,9 +13,9 @@ import {
   adminTextareaClass,
 } from "@/components/admin/ui";
 import {
-  createMemory,
   deleteMemory,
-  updateMemory,
+  saveMemoryAction,
+  type MemoryFormState,
 } from "@/lib/actions/admin/memories";
 import { formatFullDate, getTodayDateString } from "@/lib/format";
 import type { Memory } from "@/lib/types/database";
@@ -27,10 +27,15 @@ function MemoryForm({
   editing?: Memory | null;
   onCancel: () => void;
 }) {
+  const [state, formAction, pending] = useActionState<MemoryFormState, FormData>(
+    saveMemoryAction,
+    { error: null },
+  );
+
   return (
     <AdminCard title={editing ? "思い出を編集" : "新規思い出"}>
       <form
-        action={editing ? updateMemory : createMemory}
+        action={formAction}
         encType="multipart/form-data"
         className="grid gap-5 p-5 md:grid-cols-2"
       >
@@ -73,13 +78,17 @@ function MemoryForm({
           </AdminField>
         </div>
 
+        {state.error ? (
+          <p className="text-sm text-[#C4866A] md:col-span-2">{state.error}</p>
+        ) : null}
+
         <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end md:col-span-2">
           <AdminGhostButton type="button" onClick={onCancel}>
             キャンセル
           </AdminGhostButton>
           <AdminPrimaryButton type="submit">
             <i className="ti ti-check" />
-            保存
+            {pending ? "..." : "保存"}
           </AdminPrimaryButton>
         </div>
       </form>

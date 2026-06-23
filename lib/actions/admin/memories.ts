@@ -1,12 +1,15 @@
 "use server";
 
 import { randomUUID } from "crypto";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { parseFormDateString } from "@/lib/format";
 import { compressMemoryPhoto } from "@/lib/image-compress";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { failAdmin } from "@/lib/actions/admin/utils";
+
+export type MemoryFormState = { error: string | null };
 
 function revalidateAdmin() {
   revalidatePath("/admin/memory");
@@ -24,7 +27,11 @@ async function uploadPhotoFile(
   let contentType = file.type || "image/jpeg";
   let extension = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
 
-  if (file.type.startsWith("image/")) {
+  const isImage =
+    file.type.startsWith("image/") ||
+    /\.(jpe?g|png|gif|webp|heic|heif)$/i.test(file.name);
+
+  if (isImage) {
     try {
       const compressed = await compressMemoryPhoto(originalBuffer);
       uploadBuffer = Buffer.from(compressed.buffer);
@@ -65,7 +72,7 @@ async function removeStoragePhotos(paths: Array<string | null | undefined>) {
   await supabase.storage.from("memories").remove(validPaths);
 }
 
-export async function createMemory(formData: FormData) {
+async function createMemory(formData: FormData) {
   const caption = formData.get("caption");
   const memoryDate = formData.get("memory_date");
 
@@ -88,12 +95,16 @@ export async function createMemory(formData: FormData) {
     photo_url_2: upload2.path ?? null,
   });
 
-  if (error) failAdmin(error.message);
+  if (error) {
+    await removeStoragePhotos([upload1.path, upload2.path]);
+    failAdmin(error.message);
+  }
+
   revalidateAdmin();
   redirect("/admin/memory");
 }
 
-export async function updateMemory(formData: FormData) {
+async function updateMemory(formData: FormData) {
   const id = formData.get("id");
   const caption = formData.get("caption");
   const memoryDate = formData.get("memory_date");
@@ -134,10 +145,33 @@ export async function updateMemory(formData: FormData) {
   }
 
   const { error } = await supabase.from("memories").update(updates).eq("id", id);
-  if (error) failAdmin(error.message);
+  if (error) {
+    await removeStoragePhotos([upload1.path, upload2.path]);
+    failAdmin(error.message);
+  }
 
   await removeStoragePhotos(pathsToRemove);
   revalidateAdmin();
+}
+
+export async function saveMemoryAction(
+  _prevState: MemoryFormState,
+  formData: FormData,
+): Promise<MemoryFormState> {
+  try {
+    const id = formData.get("id");
+    if (typeof id === "string" && id.length > 0) {
+      await updateMemory(formData);
+      return { error: null };
+    }
+    await createMemory(formData);
+    return { error: null };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return {
+      error: error instanceof Error ? error.message : "保存に失敗しました",
+    };
+  }
 }
 
 export async function deleteMemory(formData: FormData) {
