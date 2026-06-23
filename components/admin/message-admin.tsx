@@ -11,9 +11,9 @@ import {
   AdminPrimaryButton,
   AdminTag,
   adminInputClass,
-  adminTextareaClass,
 } from "@/components/admin/ui";
 import { createMessage, deleteMessage, updateMessage } from "@/lib/actions/admin/messages";
+import { AdminTextareaWithCount } from "@/components/admin/textarea-with-count";
 import { formatShortDate } from "@/lib/format";
 import type { Category, MessageWithTags, Tag } from "@/lib/types/database";
 
@@ -67,12 +67,12 @@ function MessageForm({ categories, tags, editing, onCancel }: MessageFormProps) 
 
         <div className="md:col-span-2">
           <AdminField label="本文">
-            <textarea
+            <AdminTextareaWithCount
               name="body"
-              rows={4}
+              rows={8}
               defaultValue={editing?.body ?? ""}
               placeholder="メッセージを入力…"
-              className={adminTextareaClass}
+              className="min-h-52 md:min-h-0"
               required
             />
           </AdminField>
@@ -134,6 +134,7 @@ export function MessageAdmin({
       <AdminPageContent>
         {showForm ? (
           <MessageForm
+            key={editing?.id ?? "create"}
             categories={categories}
             tags={tags}
             editing={editing}

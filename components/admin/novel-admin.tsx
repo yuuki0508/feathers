@@ -10,9 +10,9 @@ import {
   AdminPageContent,
   AdminPrimaryButton,
   adminInputClass,
-  adminTextareaClass,
 } from "@/components/admin/ui";
 import { createNovel, deleteNovel, updateNovel } from "@/lib/actions/admin/novels";
+import { AdminTextareaWithCount } from "@/components/admin/textarea-with-count";
 import { formatShortDate } from "@/lib/format";
 import type { Novel } from "@/lib/types/database";
 
@@ -40,12 +40,11 @@ function NovelForm({
         </AdminField>
 
         <AdminField label="本文">
-          <textarea
+          <AdminTextareaWithCount
             name="body"
             rows={10}
             defaultValue={editing?.body ?? ""}
             placeholder="物語を書く…"
-            className={adminTextareaClass}
             required
           />
         </AdminField>
@@ -89,6 +88,7 @@ export function NovelAdmin({ novels }: { novels: Novel[] }) {
       <AdminPageContent>
         {showForm ? (
           <NovelForm
+            key={editing?.id ?? "create"}
             editing={editing}
             onCancel={() => {
               setEditing(null);
