@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import { parseFormDateString } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { failAdmin } from "@/lib/actions/admin/utils";
 
 function revalidateAdmin() {
@@ -52,6 +53,7 @@ export async function createMemory(formData: FormData) {
 
   if (error) failAdmin(error.message);
   revalidateAdmin();
+  redirect("/admin/memory");
 }
 
 export async function updateMemory(formData: FormData) {

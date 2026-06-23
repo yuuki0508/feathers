@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { dateStringToJstNoonIso, parseFormDateString } from "@/lib/format";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { failAdmin } from "@/lib/actions/admin/utils";
 
 function revalidateAdmin() {
@@ -55,6 +56,7 @@ export async function createMessage(formData: FormData) {
 
   await syncMessageTags(data.id, parseTagIds(formData));
   revalidateAdmin();
+  redirect("/admin/message");
 }
 
 export async function updateMessage(formData: FormData) {

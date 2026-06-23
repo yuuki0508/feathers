@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { failAdmin } from "@/lib/actions/admin/utils";
 
 function revalidateAdmin() {
@@ -32,6 +33,7 @@ export async function createLike(formData: FormData) {
 
   if (error) failAdmin(error.message);
   revalidateAdmin();
+  redirect("/admin/likes");
 }
 
 export async function updateLike(formData: FormData) {

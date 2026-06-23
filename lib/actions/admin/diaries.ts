@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { parseFormDateString } from "@/lib/format";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { failAdmin } from "@/lib/actions/admin/utils";
 
 function revalidateAdmin() {
@@ -32,6 +33,7 @@ export async function createDiary(formData: FormData) {
 
   if (error) failAdmin(error.message);
   revalidateAdmin();
+  redirect("/admin/diary");
 }
 
 export async function updateDiary(formData: FormData) {
