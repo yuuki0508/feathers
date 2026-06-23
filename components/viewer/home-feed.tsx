@@ -14,6 +14,11 @@ type HomeFeedProps = {
 export function HomeFeed({ items }: HomeFeedProps) {
   const pathname = usePathname();
   const [readVersion, setReadVersion] = useState(0);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
     setReadVersion((version) => version + 1);
@@ -22,9 +27,12 @@ export function HomeFeed({ items }: HomeFeedProps) {
   const visibleItems = useMemo(
     () =>
       items.filter((item) =>
-        shouldShowFeedItem(item.occurredAt, isContentRead(item.contentType, item.id)),
+        shouldShowFeedItem(
+          item.occurredAt,
+          hydrated ? isContentRead(item.contentType, item.id) : false,
+        ),
       ),
-    [items, readVersion],
+    [items, readVersion, hydrated],
   );
 
   const handleClick = (item: FeedItem) => {

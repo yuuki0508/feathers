@@ -1,3 +1,5 @@
+import { getTodayDateString, toDateInputValue } from "@/lib/format";
+
 export type FeedContentType = "messages" | "memories" | "likes" | "diaries" | "novels";
 
 export type FeedItem = {
@@ -15,15 +17,9 @@ export function buildFeedText(item: FeedItem): string {
 }
 
 export function isFeedItemFromPastDay(occurredAt: string): boolean {
-  const occurred = new Date(occurredAt);
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfOccurred = new Date(
-    occurred.getFullYear(),
-    occurred.getMonth(),
-    occurred.getDate(),
-  );
-  return startOfOccurred.getTime() < startOfToday.getTime();
+  const today = getTodayDateString();
+  const occurredDate = toDateInputValue(occurredAt);
+  return occurredDate < today;
 }
 
 export function shouldShowFeedItem(occurredAt: string, isRead: boolean): boolean {

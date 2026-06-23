@@ -91,9 +91,17 @@ export function formatLikeNumber(index: number): string {
   return String(index + 1).padStart(2, "0");
 }
 
-export function formatFeedDateTime(dateStr: string): string {
+export function formatFeedDateTime(dateStr: string, timeZone = APP_TIMEZONE): string {
   const date = new Date(dateStr);
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${date.getMonth() + 1}月${date.getDate()}日 ${hours}:${minutes}`;
+  const parts = new Intl.DateTimeFormat("ja-JP", {
+    timeZone,
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? "";
+  return `${get("month")}月${get("day")}日 ${get("hour")}:${get("minute")}`;
 }
