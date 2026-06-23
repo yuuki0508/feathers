@@ -36,16 +36,16 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend, ArcEle
 type AnalyticsDashboardProps = {
   logs: AccessLog[];
   categoryCounts: Array<{ name: string; count: number }>;
-  totalCount: number;
   thisMonthCount: number;
+  todayCount: number;
   topContent: string;
 };
 
 export function AnalyticsDashboard({
   logs,
   categoryCounts,
-  totalCount,
   thisMonthCount,
+  todayCount,
   topContent,
 }: AnalyticsDashboardProps) {
   const [period, setPeriod] = useState<AnalyticsPeriod>("30days");
@@ -79,15 +79,14 @@ export function AnalyticsDashboard({
         <div className="mb-6 grid grid-cols-1 gap-3.5 md:grid-cols-3">
           <AdminCard title="">
             <div className="p-4">
-              <p className="mb-1.5 text-[11px] tracking-wide text-[#999]">総アクセス数</p>
-              <p className="text-[26px] font-medium text-[#333]">{totalCount}</p>
+              <p className="mb-1.5 text-[11px] tracking-wide text-[#999]">今月のアクセス</p>
+              <p className="text-[26px] font-medium text-[#333]">{thisMonthCount}</p>
             </div>
           </AdminCard>
           <AdminCard title="">
             <div className="p-4">
-              <p className="mb-1.5 text-[11px] tracking-wide text-[#999]">今月のアクセス</p>
-              <p className="text-[26px] font-medium text-[#333]">{thisMonthCount}</p>
-              <p className="mt-1 text-[11px] text-[#aaa]">直近30日間</p>
+              <p className="mb-1.5 text-[11px] tracking-wide text-[#999]">今日のアクセス</p>
+              <p className="text-[26px] font-medium text-[#333]">{todayCount}</p>
             </div>
           </AdminCard>
           <AdminCard title="">

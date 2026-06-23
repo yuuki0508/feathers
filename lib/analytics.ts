@@ -1,4 +1,7 @@
 import type { AccessLog } from "@/lib/types/database";
+import { getTodayDateString } from "@/lib/format";
+
+const APP_TIMEZONE = "Asia/Tokyo";
 
 export type AnalyticsPeriod = "30days" | "7days" | "thisMonth" | "lastMonth";
 
@@ -41,6 +44,32 @@ export function getPeriodRange(period: AnalyticsPeriod): { start: Date; end: Dat
   start.setDate(start.getDate() - 29);
   start.setHours(0, 0, 0, 0);
   return { start, end };
+}
+
+/** 日本時間の今月1日 0:00 〜 今日 23:59 */
+export function getThisMonthRange(timeZone = APP_TIMEZONE): { start: Date; end: Date } {
+  const today = getTodayDateString(timeZone);
+  const monthStart = `${today.slice(0, 7)}-01`;
+  return {
+    start: new Date(`${monthStart}T00:00:00+09:00`),
+    end: new Date(`${today}T23:59:59.999+09:00`),
+  };
+}
+
+/** 日本時間の「今日」の 0:00〜23:59 */
+export function getTodayRange(timeZone = APP_TIMEZONE): { start: Date; end: Date } {
+  const today = getTodayDateString(timeZone);
+  return {
+    start: new Date(`${today}T00:00:00+09:00`),
+    end: new Date(`${today}T23:59:59.999+09:00`),
+  };
+}
+
+export function countLogsInRange(logs: AccessLog[], start: Date, end: Date): number {
+  return logs.filter((log) => {
+    const accessedAt = new Date(log.accessed_at);
+    return accessedAt >= start && accessedAt <= end;
+  }).length;
 }
 
 export function filterLogs(

@@ -2,7 +2,9 @@ import { AnalyticsDashboard } from "@/components/admin/analytics-dashboard";
 import {
   buildCategoryCounts,
   buildContentRanking,
-  getPeriodRange,
+  countLogsInRange,
+  getThisMonthRange,
+  getTodayRange,
 } from "@/lib/analytics";
 import { createClient } from "@/lib/supabase/server";
 import type { AccessLog } from "@/lib/types/database";
@@ -35,11 +37,10 @@ export default async function AdminAnalyticsPage() {
   const letterLogs = allLogs.filter((log) => log.page_type === "手紙");
   const categoryCounts = await buildCategoryCounts(letterLogs, messageCategories);
 
-  const thisMonthRange = getPeriodRange("30days");
-  const thisMonthLogs = allLogs.filter((log) => {
-    const accessedAt = new Date(log.accessed_at);
-    return accessedAt >= thisMonthRange.start && accessedAt <= thisMonthRange.end;
-  });
+  const thisMonthRange = getThisMonthRange();
+  const todayRange = getTodayRange();
+  const thisMonthCount = countLogsInRange(allLogs, thisMonthRange.start, thisMonthRange.end);
+  const todayCount = countLogsInRange(allLogs, todayRange.start, todayRange.end);
 
   const ranking = buildContentRanking(allLogs);
   const topContent = ranking[0]?.title ?? "—";
@@ -48,8 +49,8 @@ export default async function AdminAnalyticsPage() {
     <AnalyticsDashboard
       logs={allLogs}
       categoryCounts={categoryCounts}
-      totalCount={allLogs.length}
-      thisMonthCount={thisMonthLogs.length}
+      thisMonthCount={thisMonthCount}
+      todayCount={todayCount}
       topContent={topContent}
     />
   );
