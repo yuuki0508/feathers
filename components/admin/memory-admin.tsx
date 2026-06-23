@@ -1,6 +1,11 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import {
+  useActionState,
+  useState,
+  startTransition,
+  type FormEvent,
+} from "react";
 import {
   AdminCard,
   AdminField,
@@ -17,6 +22,7 @@ import {
   saveMemoryAction,
   type MemoryFormState,
 } from "@/lib/actions/admin/memories";
+import { compressFormImageField } from "@/lib/client/compress-image";
 import { formatFullDate, getTodayDateString } from "@/lib/format";
 import type { Memory } from "@/lib/types/database";
 
@@ -31,11 +37,38 @@ function MemoryForm({
     saveMemoryAction,
     { error: null },
   );
+  const [clientError, setClientError] = useState<string | null>(null);
+  const [compressing, setCompressing] = useState(false);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setClientError(null);
+    setCompressing(true);
+
+    try {
+      const formData = new FormData(event.currentTarget);
+      await compressFormImageField(formData, "photo", "写真1");
+      await compressFormImageField(formData, "photo_2", "写真2");
+
+      startTransition(() => {
+        formAction(formData);
+      });
+    } catch (error) {
+      setClientError(
+        error instanceof Error ? error.message : "画像の処理に失敗しました",
+      );
+    } finally {
+      setCompressing(false);
+    }
+  };
+
+  const errorMessage = clientError ?? state.error;
+  const isBusy = compressing || pending;
 
   return (
     <AdminCard title={editing ? "思い出を編集" : "新規思い出"}>
       <form
-        action={formAction}
+        onSubmit={handleSubmit}
         encType="multipart/form-data"
         className="grid gap-5 p-5 md:grid-cols-2"
       >
@@ -51,7 +84,7 @@ function MemoryForm({
           />
         </AdminField>
 
-        <AdminField label="写真1" hint="※最大2枚まで">
+        <AdminField label="写真1" hint="※最大2枚・アップロード前に自動圧縮">
           <input type="file" name="photo" accept="image/*" className={adminInputClass} />
         </AdminField>
 
@@ -78,8 +111,8 @@ function MemoryForm({
           </AdminField>
         </div>
 
-        {state.error ? (
-          <p className="text-sm text-[#C4866A] md:col-span-2">{state.error}</p>
+        {errorMessage ? (
+          <p className="text-sm text-[#C4866A] md:col-span-2">{errorMessage}</p>
         ) : null}
 
         <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end md:col-span-2">
@@ -88,7 +121,7 @@ function MemoryForm({
           </AdminGhostButton>
           <AdminPrimaryButton type="submit">
             <i className="ti ti-check" />
-            {pending ? "..." : "保存"}
+            {isBusy ? "..." : "保存"}
           </AdminPrimaryButton>
         </div>
       </form>
