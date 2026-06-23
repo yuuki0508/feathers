@@ -31,7 +31,7 @@ export default async function AdminTodayPage() {
         <AdminCard title="現在の表示">
           <div className="p-5">
             <p className="mb-1.5 text-[11px] text-[#C4866A]">{displayDate}</p>
-            <div className="mb-5 rounded-lg bg-[#FBF0E8] p-4 text-sm leading-relaxed text-[#5C4A3D]">
+            <div className="mb-5 whitespace-pre-wrap rounded-lg bg-[#FBF0E8] p-4 text-sm leading-relaxed text-[#5C4A3D]">
               {todayMessage?.body ?? "まだ設定されていません。"}
             </div>
 
@@ -42,7 +42,7 @@ export default async function AdminTodayPage() {
                   rows={3}
                   defaultValue={todayMessage?.body ?? ""}
                   placeholder="今日のひとことを入力…"
-                  className={adminTextareaClass}
+                  className={`${adminTextareaClass} min-h-52 md:min-h-0`}
                 />
               </AdminField>
               <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
