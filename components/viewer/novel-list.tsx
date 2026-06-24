@@ -4,13 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NewBadge } from "@/components/viewer/new-badge";
-import { formatShortDate, truncateText } from "@/lib/format";
+import { getNovelContentDate, isTreatableAsNew } from "@/lib/content-sort";
+import { formatShortDate, getTodayDateString, truncateText } from "@/lib/format";
 import { isNovelRead } from "@/lib/read-status";
 import type { Novel } from "@/lib/types/database";
 
 export function NovelList({ novels }: { novels: Novel[] }) {
   const pathname = usePathname();
   const [, setReadVersion] = useState(0);
+  const today = getTodayDateString();
 
   useEffect(() => {
     setReadVersion((version) => version + 1);
@@ -31,7 +33,9 @@ export function NovelList({ novels }: { novels: Novel[] }) {
           href={`/novel/${novel.id}`}
           className="mb-3 block rounded-[18px] border border-border bg-card p-5"
         >
-          {!isNovelRead(novel.id) ? <NewBadge /> : null}
+          {!isNovelRead(novel.id) && isTreatableAsNew(getNovelContentDate(novel), today) ? (
+            <NewBadge />
+          ) : null}
           <h2 className="mb-2 text-base font-medium leading-snug text-text">
             {novel.title}
           </h2>

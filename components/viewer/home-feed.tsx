@@ -28,7 +28,7 @@ export function HomeFeed({ items }: HomeFeedProps) {
     () =>
       items.filter((item) =>
         shouldShowFeedItem(
-          item.occurredAt,
+          item,
           hydrated ? isContentRead(item.contentType, item.id) : false,
         ),
       ),

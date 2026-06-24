@@ -1,5 +1,5 @@
 import type { FeedItem } from "@/lib/feed";
-import { getMemorySortAt, getNovelSortAt } from "@/lib/content-sort";
+import { getMemoryContentDate, getMemorySortAt, getNovelContentDate, getNovelSortAt } from "@/lib/content-sort";
 import { formatLikeNumber } from "@/lib/format";
 
 type FeedRecord = {
@@ -84,6 +84,7 @@ export function buildFeedItems(data: FeedSourceData): FeedItem[] {
         id: item.id,
         contentType: "memories" as const,
         label: "思い出",
+        contentDate: getMemoryContentDate(item),
         href: "/shelf/memory",
         sortAt: getMemorySortAt(item),
         ...event,
@@ -120,6 +121,7 @@ export function buildFeedItems(data: FeedSourceData): FeedItem[] {
         contentType: "novels" as const,
         label: "お楽しみ",
         detail: item.title,
+        contentDate: getNovelContentDate(item),
         href: `/novel/${item.id}`,
         sortAt: getNovelSortAt(item),
         ...event,
