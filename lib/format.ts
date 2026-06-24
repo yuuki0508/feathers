@@ -24,6 +24,17 @@ export function toDateInputValue(isoString: string, timeZone = APP_TIMEZONE): st
   return new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date(isoString));
 }
 
+/** 日本時間の暦日で、指定日時から今日まで何日経過したか */
+export function getCalendarDaysSince(isoString: string, timeZone = APP_TIMEZONE): number {
+  const today = parseCalendarDate(getTodayDateString(timeZone));
+  const target = parseCalendarDate(toDateInputValue(isoString, timeZone));
+  if (!today || !target) return 0;
+
+  const todayMs = Date.UTC(today.year, today.month - 1, today.day);
+  const targetMs = Date.UTC(target.year, target.month - 1, target.day);
+  return Math.floor((todayMs - targetMs) / (1000 * 60 * 60 * 24));
+}
+
 /** フォームの日付値を YYYY-MM-DD に正規化（未入力時は今日） */
 export function parseFormDateString(
   value: FormDataEntryValue | null,

@@ -4,7 +4,7 @@ import { ServiceHeader } from "@/components/viewer/service-header";
 import { buildFeedItems } from "@/lib/feed-items";
 import { formatFullDate, getTodayDateString } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
-import type { TodayMessage } from "@/lib/types/database";
+import type { Diary, Like, Message, Novel, TodayMessage } from "@/lib/types/database";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -23,11 +23,28 @@ export default async function HomePage() {
       .order("updated_at", { ascending: false })
       .limit(1)
       .maybeSingle<TodayMessage>(),
-    supabase.from("messages").select("id, created_at, updated_at").order("created_at", { ascending: false }),
+    supabase
+      .from("messages")
+      .select("id, created_at, updated_at, categories(name)")
+      .order("created_at", { ascending: false })
+      .returns<Pick<Message, "id" | "created_at" | "updated_at" | "categories">[]>(),
     supabase.from("memories").select("id, created_at, updated_at").order("created_at", { ascending: false }),
-    supabase.from("likes").select("id, created_at, updated_at").order("created_at", { ascending: false }),
-    supabase.from("diaries").select("id, created_at, updated_at").order("created_at", { ascending: false }),
-    supabase.from("novels").select("id, created_at, updated_at").order("created_at", { ascending: false }),
+    supabase
+      .from("likes")
+      .select("id, created_at, updated_at, display_order")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: true })
+      .returns<Pick<Like, "id" | "created_at" | "updated_at" | "display_order">[]>(),
+    supabase
+      .from("diaries")
+      .select("id, created_at, updated_at, title")
+      .order("created_at", { ascending: false })
+      .returns<Pick<Diary, "id" | "created_at" | "updated_at" | "title">[]>(),
+    supabase
+      .from("novels")
+      .select("id, created_at, updated_at, title")
+      .order("created_at", { ascending: false })
+      .returns<Pick<Novel, "id" | "created_at" | "updated_at" | "title">[]>(),
   ]);
 
   const feedItems = buildFeedItems({

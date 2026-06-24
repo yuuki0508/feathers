@@ -1,4 +1,5 @@
 import type { FeedItem } from "@/lib/feed";
+import { formatLikeNumber } from "@/lib/format";
 
 type FeedRecord = {
   id: string;
@@ -6,12 +7,28 @@ type FeedRecord = {
   updated_at: string;
 };
 
+type MessageFeedRecord = FeedRecord & {
+  categories: { name: string } | null;
+};
+
+type DiaryFeedRecord = FeedRecord & {
+  title: string;
+};
+
+type NovelFeedRecord = FeedRecord & {
+  title: string;
+};
+
+type LikeFeedRecord = FeedRecord & {
+  display_order: number;
+};
+
 type FeedSourceData = {
-  messages: FeedRecord[];
+  messages: MessageFeedRecord[];
   memories: FeedRecord[];
-  likes: FeedRecord[];
-  diaries: FeedRecord[];
-  novels: FeedRecord[];
+  likes: LikeFeedRecord[];
+  diaries: DiaryFeedRecord[];
+  novels: NovelFeedRecord[];
 };
 
 function resolveFeedEvent(record: FeedRecord): Pick<FeedItem, "action" | "occurredAt"> {
@@ -25,12 +42,26 @@ function resolveFeedEvent(record: FeedRecord): Pick<FeedItem, "action" | "occurr
   return { action: "added", occurredAt: record.created_at };
 }
 
+function buildLikeNumberMap(likes: LikeFeedRecord[]): Map<string, string> {
+  const sorted = [...likes].sort((a, b) => {
+    if (a.display_order !== b.display_order) {
+      return a.display_order - b.display_order;
+    }
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  });
+
+  return new Map(sorted.map((like, index) => [like.id, formatLikeNumber(index)]));
+}
+
 export function buildFeedItems(data: FeedSourceData): FeedItem[] {
+  const likeNumbers = buildLikeNumberMap(data.likes);
+
   const items: FeedItem[] = [
     ...data.messages.map((item) => ({
       id: item.id,
       contentType: "messages" as const,
       label: "手紙",
+      detail: item.categories?.name,
       href: "/letter",
       ...resolveFeedEvent(item),
     })),
@@ -45,6 +76,7 @@ export function buildFeedItems(data: FeedSourceData): FeedItem[] {
       id: item.id,
       contentType: "likes" as const,
       label: "好きなところ",
+      detail: likeNumbers.get(item.id),
       href: "/shelf/likes",
       ...resolveFeedEvent(item),
     })),
@@ -52,6 +84,7 @@ export function buildFeedItems(data: FeedSourceData): FeedItem[] {
       id: item.id,
       contentType: "diaries" as const,
       label: "日記",
+      detail: item.title,
       href: "/shelf/diary",
       ...resolveFeedEvent(item),
     })),
@@ -59,6 +92,7 @@ export function buildFeedItems(data: FeedSourceData): FeedItem[] {
       id: item.id,
       contentType: "novels" as const,
       label: "お楽しみ",
+      detail: item.title,
       href: `/novel/${item.id}`,
       ...resolveFeedEvent(item),
     })),
