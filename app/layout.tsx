@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Serif_Display, Noto_Serif_JP } from "next/font/google";
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import "./globals.css";
 
 const notoSerifJp = Noto_Serif_JP({
@@ -17,12 +18,21 @@ const dmSerifDisplay = DM_Serif_Display({
 export const metadata: Metadata = {
   title: "ココロの羽",
   description: "どんなに遠く離れても",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "ココロの羽",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  themeColor: "#fdf6f0",
 };
 
 export default function RootLayout({
@@ -38,7 +48,10 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
         />
       </head>
-      <body className="min-h-full font-serif antialiased">{children}</body>
+      <body className="min-h-full font-serif antialiased">
+        {children}
+        <ServiceWorkerRegister />
+      </body>
     </html>
   );
 }
