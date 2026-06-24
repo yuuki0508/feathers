@@ -23,7 +23,7 @@ export default async function LetterPage() {
   return (
     <>
       <AccessLogTracker pageType="手紙一覧" />
-      <SubHeader title="手紙" subtitle="淋しい夜には、いつでも" />
+      <SubHeader title="手紙" subtitle="そんな自分を、時々は。" />
       <LetterContent
         categories={categories ?? []}
         messages={messages ?? []}
