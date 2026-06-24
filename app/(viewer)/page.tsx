@@ -4,7 +4,7 @@ import { ServiceHeader } from "@/components/viewer/service-header";
 import { buildFeedItems } from "@/lib/feed-items";
 import { formatFullDate, getTodayDateString } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
-import type { Diary, Like, Message, Novel, TodayMessage } from "@/lib/types/database";
+import type { Diary, Like, Memory, Message, Novel, TodayMessage } from "@/lib/types/database";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -28,7 +28,12 @@ export default async function HomePage() {
       .select("id, created_at, updated_at, categories(name)")
       .order("created_at", { ascending: false })
       .returns<Pick<Message, "id" | "created_at" | "updated_at" | "categories">[]>(),
-    supabase.from("memories").select("id, created_at, updated_at").order("created_at", { ascending: false }),
+    supabase
+      .from("memories")
+      .select("id, created_at, updated_at, memory_date")
+      .order("memory_date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .returns<Pick<Memory, "id" | "created_at" | "updated_at" | "memory_date">[]>(),
     supabase
       .from("likes")
       .select("id, created_at, updated_at, display_order")

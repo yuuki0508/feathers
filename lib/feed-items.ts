@@ -1,4 +1,5 @@
 import type { FeedItem } from "@/lib/feed";
+import { getMemorySortAt, getNovelSortAt } from "@/lib/content-sort";
 import { formatLikeNumber } from "@/lib/format";
 
 type FeedRecord = {
@@ -9,6 +10,10 @@ type FeedRecord = {
 
 type MessageFeedRecord = FeedRecord & {
   categories: { name: string } | null;
+};
+
+type MemoryFeedRecord = FeedRecord & {
+  memory_date: string | null;
 };
 
 type DiaryFeedRecord = FeedRecord & {
@@ -25,10 +30,14 @@ type LikeFeedRecord = FeedRecord & {
 
 type FeedSourceData = {
   messages: MessageFeedRecord[];
-  memories: FeedRecord[];
+  memories: MemoryFeedRecord[];
   likes: LikeFeedRecord[];
   diaries: DiaryFeedRecord[];
   novels: NovelFeedRecord[];
+};
+
+type FeedItemWithSort = FeedItem & {
+  sortAt: string;
 };
 
 function resolveFeedEvent(record: FeedRecord): Pick<FeedItem, "action" | "occurredAt"> {
@@ -56,49 +65,69 @@ function buildLikeNumberMap(likes: LikeFeedRecord[]): Map<string, string> {
 export function buildFeedItems(data: FeedSourceData): FeedItem[] {
   const likeNumbers = buildLikeNumberMap(data.likes);
 
-  const items: FeedItem[] = [
-    ...data.messages.map((item) => ({
-      id: item.id,
-      contentType: "messages" as const,
-      label: "手紙",
-      detail: item.categories?.name,
-      href: "/letter",
-      ...resolveFeedEvent(item),
-    })),
-    ...data.memories.map((item) => ({
-      id: item.id,
-      contentType: "memories" as const,
-      label: "思い出",
-      href: "/shelf/memory",
-      ...resolveFeedEvent(item),
-    })),
-    ...data.likes.map((item) => ({
-      id: item.id,
-      contentType: "likes" as const,
-      label: "好きなところ",
-      detail: likeNumbers.get(item.id),
-      href: "/shelf/likes",
-      ...resolveFeedEvent(item),
-    })),
-    ...data.diaries.map((item) => ({
-      id: item.id,
-      contentType: "diaries" as const,
-      label: "日記",
-      detail: item.title,
-      href: "/shelf/diary",
-      ...resolveFeedEvent(item),
-    })),
-    ...data.novels.map((item) => ({
-      id: item.id,
-      contentType: "novels" as const,
-      label: "お楽しみ",
-      detail: item.title,
-      href: `/novel/${item.id}`,
-      ...resolveFeedEvent(item),
-    })),
+  const items: FeedItemWithSort[] = [
+    ...data.messages.map((item) => {
+      const event = resolveFeedEvent(item);
+      return {
+        id: item.id,
+        contentType: "messages" as const,
+        label: "手紙",
+        detail: item.categories?.name,
+        href: "/letter",
+        sortAt: event.occurredAt,
+        ...event,
+      };
+    }),
+    ...data.memories.map((item) => {
+      const event = resolveFeedEvent(item);
+      return {
+        id: item.id,
+        contentType: "memories" as const,
+        label: "思い出",
+        href: "/shelf/memory",
+        sortAt: getMemorySortAt(item),
+        ...event,
+      };
+    }),
+    ...data.likes.map((item) => {
+      const event = resolveFeedEvent(item);
+      return {
+        id: item.id,
+        contentType: "likes" as const,
+        label: "好きなところ",
+        detail: likeNumbers.get(item.id),
+        href: "/shelf/likes",
+        sortAt: event.occurredAt,
+        ...event,
+      };
+    }),
+    ...data.diaries.map((item) => {
+      const event = resolveFeedEvent(item);
+      return {
+        id: item.id,
+        contentType: "diaries" as const,
+        label: "日記",
+        detail: item.title,
+        href: "/shelf/diary",
+        sortAt: event.occurredAt,
+        ...event,
+      };
+    }),
+    ...data.novels.map((item) => {
+      const event = resolveFeedEvent(item);
+      return {
+        id: item.id,
+        contentType: "novels" as const,
+        label: "お楽しみ",
+        detail: item.title,
+        href: `/novel/${item.id}`,
+        sortAt: getNovelSortAt(item),
+        ...event,
+      };
+    }),
   ];
 
-  return items.sort(
-    (a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime(),
-  );
+  return items
+    .sort((a, b) => new Date(b.sortAt).getTime() - new Date(a.sortAt).getTime())
+    .map(({ sortAt: _sortAt, ...item }) => item);
 }

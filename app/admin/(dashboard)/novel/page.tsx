@@ -1,4 +1,5 @@
 import { NovelAdmin } from "@/components/admin/novel-admin";
+import { sortNovelsByDateDesc } from "@/lib/content-sort";
 import { createClient } from "@/lib/supabase/server";
 import type { Novel } from "@/lib/types/database";
 
@@ -10,5 +11,5 @@ export default async function AdminNovelPage() {
     .order("created_at", { ascending: false })
     .returns<Novel[]>();
 
-  return <NovelAdmin novels={novels ?? []} />;
+  return <NovelAdmin novels={sortNovelsByDateDesc(novels ?? [])} />;
 }

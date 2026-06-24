@@ -2,6 +2,7 @@ import { AccessLogTracker } from "@/components/viewer/access-log-tracker";
 import { MemoryCard } from "@/components/viewer/memory-card";
 import { ShelfBackLink } from "@/components/viewer/shelf-back-link";
 import { SubHeader } from "@/components/viewer/sub-header";
+import { sortMemoriesByDateDesc } from "@/lib/content-sort";
 import { getSignedPhotoUrl } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 import type { Memory } from "@/lib/types/database";
@@ -11,11 +12,14 @@ export default async function MemoryPage() {
   const { data: memories } = await supabase
     .from("memories")
     .select("*")
-    .order("memory_date", { ascending: false })
+    .order("memory_date", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false })
     .returns<Memory[]>();
 
+  const sortedMemories = sortMemoriesByDateDesc(memories ?? []);
+
   const memoriesWithPhotos = await Promise.all(
-    (memories ?? []).map(async (memory) => {
+    sortedMemories.map(async (memory) => {
       const photoUrls = (
         await Promise.all([
           getSignedPhotoUrl(supabase, memory.photo_url),
