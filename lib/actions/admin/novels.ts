@@ -1,10 +1,13 @@
 "use server";
 
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { createClient } from "@/lib/supabase/server";
 import { dateStringToJstNoonIso, parseFormDateString } from "@/lib/format";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { failAdmin } from "@/lib/actions/admin/utils";
+
+export type NovelFormState = { error: string | null };
 
 function revalidateAdmin() {
   revalidatePath("/admin/novel");
@@ -12,7 +15,7 @@ function revalidateAdmin() {
   revalidatePath("/");
 }
 
-export async function createNovel(formData: FormData) {
+async function createNovel(formData: FormData) {
   const title = formData.get("title");
   const body = formData.get("body");
 
@@ -32,11 +35,9 @@ export async function createNovel(formData: FormData) {
   });
 
   if (error) failAdmin(error.message);
-  revalidateAdmin();
-  redirect("/admin/novel");
 }
 
-export async function updateNovel(formData: FormData) {
+async function updateNovel(formData: FormData) {
   const id = formData.get("id");
   const title = formData.get("title");
   const body = formData.get("body");
@@ -61,7 +62,28 @@ export async function updateNovel(formData: FormData) {
     .eq("id", id);
 
   if (error) failAdmin(error.message);
-  revalidateAdmin();
+}
+
+export async function saveNovelAction(
+  _prevState: NovelFormState,
+  formData: FormData,
+): Promise<NovelFormState> {
+  try {
+    const id = formData.get("id");
+    if (typeof id === "string" && id.length > 0) {
+      await updateNovel(formData);
+    } else {
+      await createNovel(formData);
+    }
+
+    revalidateAdmin();
+    redirect("/admin/novel");
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return {
+      error: error instanceof Error ? error.message : "保存に失敗しました",
+    };
+  }
 }
 
 export async function deleteNovel(formData: FormData) {

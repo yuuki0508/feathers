@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import {
   AdminCard,
   AdminField,
@@ -11,7 +11,7 @@ import {
   AdminPrimaryButton,
   adminInputClass,
 } from "@/components/admin/ui";
-import { createNovel, deleteNovel, updateNovel } from "@/lib/actions/admin/novels";
+import { deleteNovel, saveNovelAction } from "@/lib/actions/admin/novels";
 import { AdminTextareaWithCount } from "@/components/admin/textarea-with-count";
 import { formatShortDate, getTodayDateString, toDateInputValue } from "@/lib/format";
 import type { Novel } from "@/lib/types/database";
@@ -23,9 +23,11 @@ function NovelForm({
   editing?: Novel | null;
   onCancel: () => void;
 }) {
+  const [state, formAction, pending] = useActionState(saveNovelAction, { error: null });
+
   return (
     <AdminCard title={editing ? "作品を編集" : "新規作品"}>
-      <form action={editing ? updateNovel : createNovel} className="grid gap-5 p-5 md:grid-cols-2">
+      <form action={formAction} className="grid gap-5 p-5 md:grid-cols-2">
         {editing ? <input type="hidden" name="id" value={editing.id} /> : null}
 
         <AdminField label="日付">
@@ -37,6 +39,7 @@ function NovelForm({
             }
             className={adminInputClass}
             required
+            disabled={pending}
           />
         </AdminField>
 
@@ -48,28 +51,34 @@ function NovelForm({
             placeholder="タイトルを入力…"
             className={adminInputClass}
             required
+            disabled={pending}
           />
         </AdminField>
 
         <div className="md:col-span-2">
           <AdminField label="本文">
-          <AdminTextareaWithCount
-            name="body"
-            rows={10}
-            defaultValue={editing?.body ?? ""}
-            placeholder="物語を書く…"
-            required
-          />
+            <AdminTextareaWithCount
+              name="body"
+              rows={10}
+              defaultValue={editing?.body ?? ""}
+              placeholder="物語を書く…"
+              required
+              disabled={pending}
+            />
           </AdminField>
         </div>
 
+        {state.error ? (
+          <p className="text-sm text-[#C4866A] md:col-span-2">{state.error}</p>
+        ) : null}
+
         <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end md:col-span-2">
-          <AdminGhostButton type="button" onClick={onCancel}>
+          <AdminGhostButton type="button" onClick={onCancel} disabled={pending}>
             キャンセル
           </AdminGhostButton>
-          <AdminPrimaryButton type="submit">
+          <AdminPrimaryButton type="submit" disabled={pending}>
             <i className="ti ti-check" />
-            保存
+            {pending ? "保存中…" : "保存"}
           </AdminPrimaryButton>
         </div>
       </form>

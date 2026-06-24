@@ -47,16 +47,19 @@ export function AdminPrimaryButton({
   children,
   type = "button",
   onClick,
+  disabled = false,
 }: {
   children: React.ReactNode;
   type?: "button" | "submit";
   onClick?: () => void;
+  disabled?: boolean;
 }) {
   return (
     <button
       type={type}
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-lg bg-[#C4866A] px-4 py-2 text-[13px] text-white hover:bg-[#B37559]"
+      disabled={disabled}
+      className="inline-flex items-center gap-1.5 rounded-lg bg-[#C4866A] px-4 py-2 text-[13px] text-white hover:bg-[#B37559] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {children}
     </button>
@@ -67,16 +70,19 @@ export function AdminGhostButton({
   children,
   type = "button",
   onClick,
+  disabled = false,
 }: {
   children: React.ReactNode;
   type?: "button" | "submit";
   onClick?: () => void;
+  disabled?: boolean;
 }) {
   return (
     <button
       type={type}
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E5E5] bg-[#F5F5F5] px-4 py-2 text-[13px] text-[#555] hover:bg-[#EAEAEA]"
+      disabled={disabled}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E5E5] bg-[#F5F5F5] px-4 py-2 text-[13px] text-[#555] hover:bg-[#EAEAEA] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {children}
     </button>

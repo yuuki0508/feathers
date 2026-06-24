@@ -9,6 +9,7 @@ type AdminTextareaWithCountProps = {
   placeholder?: string;
   rows?: number;
   required?: boolean;
+  disabled?: boolean;
   className?: string;
 };
 
@@ -18,6 +19,7 @@ export function AdminTextareaWithCount({
   placeholder,
   rows = 4,
   required,
+  disabled = false,
   className,
 }: AdminTextareaWithCountProps) {
   const [value, setValue] = useState(defaultValue);
@@ -31,6 +33,7 @@ export function AdminTextareaWithCount({
         onChange={(event) => setValue(event.target.value)}
         placeholder={placeholder}
         required={required}
+        disabled={disabled}
         className={`${adminTextareaClass} ${className ?? ""}`}
       />
       <p className="mt-1.5 text-right text-[11px] tabular-nums text-[#aaa]">
