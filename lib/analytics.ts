@@ -1,7 +1,15 @@
 import type { AccessLog } from "@/lib/types/database";
-import { getTodayDateString } from "@/lib/format";
+import {
+  formatCalendarDateWithWeekday,
+  formatTimeInTimezone,
+  getHourInTimezone,
+  getTodayDateString,
+  subtractCalendarDays,
+  toDateInputValue,
+} from "@/lib/format";
 
 const APP_TIMEZONE = "Asia/Tokyo";
+const JST_OFFSET = "+09:00";
 
 export type AnalyticsPeriod = "30days" | "7days" | "thisMonth" | "lastMonth";
 
@@ -14,36 +22,37 @@ export type PageTypeFilter =
   | "好きなところ"
   | "ホーム";
 
-export function getPeriodRange(period: AnalyticsPeriod): { start: Date; end: Date } {
-  const now = new Date();
-  const end = new Date(now);
-  end.setHours(23, 59, 59, 999);
+function jstDayStart(dateStr: string): Date {
+  return new Date(`${dateStr}T00:00:00${JST_OFFSET}`);
+}
+
+function jstDayEnd(dateStr: string): Date {
+  return new Date(`${dateStr}T23:59:59.999${JST_OFFSET}`);
+}
+
+export function getPeriodRange(
+  period: AnalyticsPeriod,
+  timeZone = APP_TIMEZONE,
+): { start: Date; end: Date } {
+  const today = getTodayDateString(timeZone);
+  const end = jstDayEnd(today);
 
   if (period === "7days") {
-    const start = new Date(now);
-    start.setDate(start.getDate() - 6);
-    start.setHours(0, 0, 0, 0);
-    return { start, end };
+    return { start: jstDayStart(subtractCalendarDays(today, 6)), end };
   }
 
   if (period === "thisMonth") {
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
-    start.setHours(0, 0, 0, 0);
-    return { start, end };
+    const monthStart = `${today.slice(0, 7)}-01`;
+    return { start: jstDayStart(monthStart), end };
   }
 
   if (period === "lastMonth") {
-    const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    start.setHours(0, 0, 0, 0);
-    const lastEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-    lastEnd.setHours(23, 59, 59, 999);
-    return { start, end: lastEnd };
+    const lastDayOfPrevMonth = subtractCalendarDays(`${today.slice(0, 7)}-01`, 1);
+    const monthStart = `${lastDayOfPrevMonth.slice(0, 7)}-01`;
+    return { start: jstDayStart(monthStart), end: jstDayEnd(lastDayOfPrevMonth) };
   }
 
-  const start = new Date(now);
-  start.setDate(start.getDate() - 29);
-  start.setHours(0, 0, 0, 0);
-  return { start, end };
+  return { start: jstDayStart(subtractCalendarDays(today, 29)), end };
 }
 
 /** 日本時間の今月1日 0:00 〜 今日 23:59 */
@@ -51,8 +60,8 @@ export function getThisMonthRange(timeZone = APP_TIMEZONE): { start: Date; end: 
   const today = getTodayDateString(timeZone);
   const monthStart = `${today.slice(0, 7)}-01`;
   return {
-    start: new Date(`${monthStart}T00:00:00+09:00`),
-    end: new Date(`${today}T23:59:59.999+09:00`),
+    start: jstDayStart(monthStart),
+    end: jstDayEnd(today),
   };
 }
 
@@ -60,8 +69,8 @@ export function getThisMonthRange(timeZone = APP_TIMEZONE): { start: Date; end: 
 export function getTodayRange(timeZone = APP_TIMEZONE): { start: Date; end: Date } {
   const today = getTodayDateString(timeZone);
   return {
-    start: new Date(`${today}T00:00:00+09:00`),
-    end: new Date(`${today}T23:59:59.999+09:00`),
+    start: jstDayStart(today),
+    end: jstDayEnd(today),
   };
 }
 
@@ -94,10 +103,10 @@ export function filterLogs(
   });
 }
 
-export function buildHourlyCounts(logs: AccessLog[]): number[] {
+export function buildHourlyCounts(logs: AccessLog[], timeZone = APP_TIMEZONE): number[] {
   const counts = Array.from({ length: 24 }, () => 0);
   logs.forEach((log) => {
-    counts[new Date(log.accessed_at).getHours()] += 1;
+    counts[getHourInTimezone(log.accessed_at, timeZone)] += 1;
   });
   return counts;
 }
@@ -125,11 +134,11 @@ export function buildContentRanking(logs: AccessLog[]) {
     .slice(0, 10);
 }
 
-export function buildDailyLogs(logs: AccessLog[]) {
+export function buildDailyLogs(logs: AccessLog[], timeZone = APP_TIMEZONE) {
   const grouped = new Map<string, AccessLog[]>();
 
   logs.forEach((log) => {
-    const dateKey = log.accessed_at.slice(0, 10);
+    const dateKey = toDateInputValue(log.accessed_at, timeZone);
     const existing = grouped.get(dateKey) ?? [];
     existing.push(log);
     grouped.set(dateKey, existing);
@@ -163,13 +172,10 @@ export async function buildCategoryCounts(
     .sort((a, b) => b.count - a.count);
 }
 
-export function formatLogTime(dateStr: string): string {
-  const date = new Date(dateStr);
-  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+export function formatLogTime(dateStr: string, timeZone = APP_TIMEZONE): string {
+  return formatTimeInTimezone(dateStr, timeZone);
 }
 
 export function formatLogDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-  return `${date.getMonth() + 1}月${date.getDate()}日（${weekdays[date.getDay()]}）`;
+  return formatCalendarDateWithWeekday(dateStr);
 }

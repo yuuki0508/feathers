@@ -54,6 +54,55 @@ export function dateStringToJstNoonIso(dateStr: string): string {
   return `${dateStr}T12:00:00+09:00`;
 }
 
+/** 暦日 YYYY-MM-DD から指定日数を引いた YYYY-MM-DD を返す */
+export function subtractCalendarDays(dateStr: string, days: number): string {
+  const calendar = parseCalendarDate(dateStr);
+  if (!calendar) return dateStr;
+  const date = new Date(Date.UTC(calendar.year, calendar.month - 1, calendar.day));
+  date.setUTCDate(date.getUTCDate() - days);
+  return date.toISOString().slice(0, 10);
+}
+
+/** 暦日 YYYY-MM-DD を「M月D日（曜）」形式で返す */
+export function formatCalendarDateWithWeekday(dateStr: string): string {
+  const calendar = parseCalendarDate(dateStr);
+  if (!calendar) {
+    return formatFullDate(dateStr);
+  }
+  const weekday =
+    WEEKDAYS[
+      new Date(Date.UTC(calendar.year, calendar.month - 1, calendar.day)).getUTCDay()
+    ];
+  return `${calendar.month}月${calendar.day}日（${weekday}）`;
+}
+
+/** timestamptz を指定タイムゾーンの HH:mm で返す */
+export function formatTimeInTimezone(
+  isoString: string,
+  timeZone = APP_TIMEZONE,
+): string {
+  const parts = new Intl.DateTimeFormat("ja-JP", {
+    timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(isoString));
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? "";
+  return `${get("hour")}:${get("minute")}`;
+}
+
+/** timestamptz の指定タイムゾーンにおける時（0–23）を返す */
+export function getHourInTimezone(isoString: string, timeZone = APP_TIMEZONE): number {
+  return Number(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      hour: "numeric",
+      hour12: false,
+    }).format(new Date(isoString)),
+  );
+}
+
 export function formatFullDate(dateStr: string): string {
   const calendar = parseCalendarDate(dateStr);
   if (calendar) {
