@@ -161,12 +161,18 @@ export function MessageAdmin({
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b border-[#F0F0F0] bg-[#FAFAFA]">
-                  {["カテゴリ", "タグ", "本文", "投稿日", ""].map((heading) => (
+                  {[
+                    { label: "カテゴリ", className: "" },
+                    { label: "タグ", className: "" },
+                    { label: "本文", className: "hidden md:table-cell" },
+                    { label: "投稿日", className: "" },
+                    { label: "", className: "" },
+                  ].map(({ label, className }) => (
                     <th
-                      key={heading}
-                      className="px-4 py-2.5 text-left text-[11px] tracking-wide text-[#888]"
+                      key={label || "actions"}
+                      className={`px-4 py-2.5 text-left text-[11px] tracking-wide text-[#888] ${className}`}
                     >
-                      {heading}
+                      {label}
                     </th>
                   ))}
                 </tr>
@@ -192,7 +198,7 @@ export function MessageAdmin({
                           ) : null,
                         )}
                       </td>
-                      <td className="max-w-md px-4 py-3 align-middle text-sm leading-relaxed text-[#444]">
+                      <td className="hidden max-w-md px-4 py-3 align-middle text-sm leading-relaxed text-[#444] md:table-cell">
                         <p className="line-clamp-3 whitespace-pre-wrap">{message.body}</p>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 align-middle text-sm text-[#444]">

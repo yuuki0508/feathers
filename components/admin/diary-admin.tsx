@@ -114,12 +114,17 @@ export function DiaryAdmin({ diaries }: { diaries: Diary[] }) {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b border-[#F0F0F0] bg-[#FAFAFA]">
-                  {["日付", "タイトル", "本文", ""].map((heading) => (
+                  {[
+                    { label: "日付", className: "" },
+                    { label: "タイトル", className: "" },
+                    { label: "本文", className: "hidden md:table-cell" },
+                    { label: "", className: "" },
+                  ].map(({ label, className }) => (
                     <th
-                      key={heading}
-                      className="px-4 py-2.5 text-left text-[11px] tracking-wide text-[#888]"
+                      key={label || "actions"}
+                      className={`px-4 py-2.5 text-left text-[11px] tracking-wide text-[#888] ${className}`}
                     >
-                      {heading}
+                      {label}
                     </th>
                   ))}
                 </tr>
@@ -134,7 +139,7 @@ export function DiaryAdmin({ diaries }: { diaries: Diary[] }) {
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-[#444]">
                         {diary.title}
                       </td>
-                      <td className="max-w-md px-4 py-3 text-sm text-[#888]">
+                      <td className="hidden max-w-md px-4 py-3 text-sm text-[#888] md:table-cell">
                         {truncateText(diary.body, 60)}
                       </td>
                       <td className="px-4 py-3">
