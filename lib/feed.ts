@@ -40,7 +40,7 @@ export function buildFeedText(item: FeedItem): string {
 export function shouldShowFeedItem(item: FeedItem, isRead: boolean): boolean {
   if (
     item.contentDate &&
-    (item.contentType === "memories" || item.contentType === "novels") &&
+    item.contentType === "novels" &&
     isContentDateBeforeToday(item.contentDate, getTodayDateString())
   ) {
     return false;
