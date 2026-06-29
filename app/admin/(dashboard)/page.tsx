@@ -13,16 +13,14 @@ import type { TodayMessage } from "@/lib/types/database";
 
 export default async function AdminTodayPage() {
   const supabase = await createClient();
+  const today = getTodayDateString();
   const { data: todayMessage } = await supabase
     .from("today_message")
     .select("*")
-    .order("updated_at", { ascending: false })
-    .limit(1)
+    .eq("display_date", today)
     .maybeSingle<TodayMessage>();
 
-  const displayDate = todayMessage?.display_date
-    ? formatFullDate(todayMessage.display_date)
-    : formatFullDate(getTodayDateString());
+  const displayDate = formatFullDate(today);
 
   return (
     <>

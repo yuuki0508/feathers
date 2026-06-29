@@ -20,7 +20,7 @@ export default async function HomePage() {
     supabase
       .from("today_message")
       .select("*")
-      .order("updated_at", { ascending: false })
+      .order("display_date", { ascending: false })
       .limit(1)
       .maybeSingle<TodayMessage>(),
     supabase

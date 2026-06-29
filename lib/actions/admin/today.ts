@@ -16,16 +16,13 @@ export async function updateTodayMessage(formData: FormData) {
   const { data: existing } = await supabase
     .from("today_message")
     .select("id")
-    .limit(1)
+    .eq("display_date", today)
     .maybeSingle();
 
   if (existing) {
     const { error } = await supabase
       .from("today_message")
-      .update({
-        body: body.trim(),
-        display_date: today,
-      })
+      .update({ body: body.trim() })
       .eq("id", existing.id);
     if (error) failAdmin(error.message);
   } else {
@@ -37,4 +34,6 @@ export async function updateTodayMessage(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/admin");
+  revalidatePath("/shelf");
+  revalidatePath("/shelf/today-history");
 }
