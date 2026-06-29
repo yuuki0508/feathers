@@ -5,12 +5,17 @@ import { createClient } from "@/lib/supabase/server";
 export default async function ShelfPage() {
   const supabase = await createClient();
 
-  const [{ count: memoryCount }, { count: likesCount }, { count: diaryCount }] =
-    await Promise.all([
-      supabase.from("memories").select("*", { count: "exact", head: true }),
-      supabase.from("likes").select("*", { count: "exact", head: true }),
-      supabase.from("diaries").select("*", { count: "exact", head: true }),
-    ]);
+  const [
+    { count: memoryCount },
+    { count: likesCount },
+    { count: diaryCount },
+    { count: todayMessageCount },
+  ] = await Promise.all([
+    supabase.from("memories").select("*", { count: "exact", head: true }),
+    supabase.from("likes").select("*", { count: "exact", head: true }),
+    supabase.from("diaries").select("*", { count: "exact", head: true }),
+    supabase.from("today_message").select("*", { count: "exact", head: true }),
+  ]);
 
   const items = [
     {
@@ -30,6 +35,12 @@ export default async function ShelfPage() {
       icon: "ti-notebook",
       label: "日記",
       count: `${diaryCount ?? 0}件`,
+    },
+    {
+      href: "/shelf/today-history",
+      icon: "ti-calendar-heart",
+      label: "毎日のことば",
+      count: `${todayMessageCount ?? 0}日`,
     },
   ] as const;
 
