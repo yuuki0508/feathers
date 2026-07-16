@@ -10,11 +10,13 @@ export default async function ShelfPage() {
     { count: likesCount },
     { count: diaryCount },
     { count: todayMessageCount },
+    { count: wishlistCount },
   ] = await Promise.all([
     supabase.from("memories").select("*", { count: "exact", head: true }),
     supabase.from("likes").select("*", { count: "exact", head: true }),
     supabase.from("diaries").select("*", { count: "exact", head: true }),
     supabase.from("today_message").select("*", { count: "exact", head: true }),
+    supabase.from("wishlist_items").select("*", { count: "exact", head: true }),
   ]);
 
   const items = [
@@ -41,6 +43,12 @@ export default async function ShelfPage() {
       icon: "ti-calendar-heart",
       label: "毎日のことば",
       count: `${todayMessageCount ?? 0}日`,
+    },
+    {
+      href: "/shelf/wishlist",
+      icon: "ti-list-check",
+      label: "やりたいこと",
+      count: `${wishlistCount ?? 0}件`,
     },
   ] as const;
 

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { buildFeedText, shouldShowFeedItem, type FeedItem } from "@/lib/feed";
 import { formatFeedDateTime } from "@/lib/format";
-import { isContentRead, markLikeRead } from "@/lib/read-status";
+import { isContentRead, markContentRead, markLikeRead } from "@/lib/read-status";
 
 type HomeFeedProps = {
   items: FeedItem[];
@@ -38,6 +38,11 @@ export function HomeFeed({ items }: HomeFeedProps) {
   const handleClick = (item: FeedItem) => {
     if (item.contentType === "likes") {
       markLikeRead(item.id);
+      setReadVersion((version) => version + 1);
+      return;
+    }
+    if (item.contentType === "wishlist_items") {
+      markContentRead("wishlist_items", item.id);
       setReadVersion((version) => version + 1);
     }
   };

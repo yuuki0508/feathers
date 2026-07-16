@@ -4,7 +4,7 @@ import { ServiceHeader } from "@/components/viewer/service-header";
 import { buildFeedItems } from "@/lib/feed-items";
 import { formatFullDate, getTodayDateString } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
-import type { Diary, Like, Memory, Message, Novel, TodayMessage } from "@/lib/types/database";
+import type { Diary, Like, Memory, Message, Novel, TodayMessage, WishlistItem } from "@/lib/types/database";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -16,6 +16,7 @@ export default async function HomePage() {
     { data: likes },
     { data: diaries },
     { data: novels },
+    { data: wishlistItems },
   ] = await Promise.all([
     supabase
       .from("today_message")
@@ -50,6 +51,11 @@ export default async function HomePage() {
       .select("id, created_at, updated_at, title")
       .order("created_at", { ascending: false })
       .returns<Pick<Novel, "id" | "created_at" | "updated_at" | "title">[]>(),
+    supabase
+      .from("wishlist_items")
+      .select("id, created_at, updated_at, body")
+      .order("created_at", { ascending: false })
+      .returns<Pick<WishlistItem, "id" | "created_at" | "updated_at" | "body">[]>(),
   ]);
 
   const feedItems = buildFeedItems({
@@ -58,6 +64,7 @@ export default async function HomePage() {
     likes: likes ?? [],
     diaries: diaries ?? [],
     novels: novels ?? [],
+    wishlistItems: wishlistItems ?? [],
   });
 
   return (

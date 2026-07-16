@@ -1,6 +1,6 @@
 import type { FeedItem } from "@/lib/feed";
 import { getMemoryContentDate, getMemorySortAt, getNovelContentDate, getNovelSortAt } from "@/lib/content-sort";
-import { formatLikeNumber } from "@/lib/format";
+import { formatLikeNumber, truncateText } from "@/lib/format";
 
 type FeedRecord = {
   id: string;
@@ -28,12 +28,17 @@ type LikeFeedRecord = FeedRecord & {
   display_order: number;
 };
 
+type WishlistFeedRecord = FeedRecord & {
+  body: string;
+};
+
 type FeedSourceData = {
   messages: MessageFeedRecord[];
   memories: MemoryFeedRecord[];
   likes: LikeFeedRecord[];
   diaries: DiaryFeedRecord[];
   novels: NovelFeedRecord[];
+  wishlistItems: WishlistFeedRecord[];
 };
 
 type FeedItemWithSort = FeedItem & {
@@ -127,6 +132,16 @@ export function buildFeedItems(data: FeedSourceData): FeedItem[] {
         ...event,
       };
     }),
+    ...data.wishlistItems.map((item) => ({
+      id: item.id,
+      contentType: "wishlist_items" as const,
+      label: "やりたいこと",
+      detail: truncateText(item.body, 30),
+      href: "/shelf/wishlist",
+      action: "added" as const,
+      occurredAt: item.created_at,
+      sortAt: item.created_at,
+    })),
   ];
 
   return items

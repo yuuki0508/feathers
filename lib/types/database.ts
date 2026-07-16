@@ -48,6 +48,14 @@ export type Diary = {
   updated_at: string;
 };
 
+export type WishlistItem = {
+  id: string;
+  body: string;
+  is_done: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Novel = {
   id: string;
   title: string;

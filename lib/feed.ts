@@ -1,7 +1,13 @@
 import { getCalendarDaysSince, getTodayDateString } from "@/lib/format";
 import { isContentDateBeforeToday } from "@/lib/content-sort";
 
-export type FeedContentType = "messages" | "memories" | "likes" | "diaries" | "novels";
+export type FeedContentType =
+  | "messages"
+  | "memories"
+  | "likes"
+  | "diaries"
+  | "novels"
+  | "wishlist_items";
 
 export type FeedItem = {
   id: string;
@@ -21,6 +27,7 @@ export function buildFeedText(item: FeedItem): string {
   switch (item.contentType) {
     case "diaries":
     case "novels":
+    case "wishlist_items":
       return item.detail
         ? `${item.label}「${item.detail}」が${verb}されました。`
         : `${item.label}が${verb}されました。`;

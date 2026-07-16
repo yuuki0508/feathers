@@ -1,6 +1,12 @@
 const STORAGE_KEY = "feathers_read";
 
-export type ReadContentType = "messages" | "memories" | "likes" | "diaries" | "novels";
+export type ReadContentType =
+  | "messages"
+  | "memories"
+  | "likes"
+  | "diaries"
+  | "novels"
+  | "wishlist_items";
 
 type ReadStore = Record<ReadContentType, string[]>;
 
@@ -10,6 +16,7 @@ const emptyStore = (): ReadStore => ({
   likes: [],
   diaries: [],
   novels: [],
+  wishlist_items: [],
 });
 
 function loadStore(): ReadStore {
@@ -25,6 +32,7 @@ function loadStore(): ReadStore {
       likes: parsed.likes ?? [],
       diaries: parsed.diaries ?? [],
       novels: parsed.novels ?? [],
+      wishlist_items: parsed.wishlist_items ?? [],
     };
   } catch {
     return emptyStore();
