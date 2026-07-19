@@ -42,3 +42,34 @@ export async function toggleWishlistItem(id: string, isDone: boolean) {
 
   revalidateWishlist();
 }
+
+export async function updateWishlistItem(id: string, body: string) {
+  if (typeof body !== "string" || body.trim().length === 0) {
+    return { error: "やりたいことを入力してください" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("wishlist_items")
+    .update({ body: body.trim() })
+    .eq("id", id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidateWishlist();
+  return { success: true };
+}
+
+export async function deleteWishlistItem(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("wishlist_items").delete().eq("id", id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidateWishlist();
+  return { success: true };
+}
