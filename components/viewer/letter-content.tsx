@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useState } from "react";
+import { ListPagination } from "@/components/viewer/list-pagination";
 import { NewBadge } from "@/components/viewer/new-badge";
 import { recordAccessLog } from "@/lib/actions/access-log";
+import { buildListPageHref } from "@/lib/pagination";
 import { formatShortDate, truncateText } from "@/lib/format";
 import { isMessageRead, markMessageRead } from "@/lib/read-status";
 import type { Category, Message } from "@/lib/types/database";
@@ -10,17 +13,20 @@ import type { Category, Message } from "@/lib/types/database";
 type LetterContentProps = {
   categories: Category[];
   messages: Message[];
+  selectedCategoryId: string | null;
+  page: number;
+  totalPages: number;
 };
 
-export function LetterContent({ categories, messages }: LetterContentProps) {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+export function LetterContent({
+  categories,
+  messages,
+  selectedCategoryId,
+  page,
+  totalPages,
+}: LetterContentProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [, setReadVersion] = useState(0);
-
-  const filteredMessages = useMemo(() => {
-    if (!selectedCategoryId) return messages;
-    return messages.filter((message) => message.category_id === selectedCategoryId);
-  }, [messages, selectedCategoryId]);
 
   const handleToggle = (message: Message) => {
     const nextId = expandedId === message.id ? null : message.id;
@@ -37,12 +43,13 @@ export function LetterContent({ categories, messages }: LetterContentProps) {
     }
   };
 
+  const categoryParams = { category: selectedCategoryId ?? undefined };
+
   return (
     <>
       <div className="scrollbar-none mb-4 flex gap-2 overflow-x-auto px-5 pb-1">
-        <button
-          type="button"
-          onClick={() => setSelectedCategoryId(null)}
+        <Link
+          href={buildListPageHref("/letter", 1)}
           className={`shrink-0 rounded-[20px] border px-4 py-1.5 text-xs ${
             selectedCategoryId === null
               ? "border-accent bg-accent text-card"
@@ -50,12 +57,11 @@ export function LetterContent({ categories, messages }: LetterContentProps) {
           }`}
         >
           すべて
-        </button>
+        </Link>
         {categories.map((category) => (
-          <button
+          <Link
             key={category.id}
-            type="button"
-            onClick={() => setSelectedCategoryId(category.id)}
+            href={buildListPageHref("/letter", 1, { category: category.id })}
             className={`shrink-0 rounded-[20px] border px-4 py-1.5 text-xs ${
               selectedCategoryId === category.id
                 ? "border-accent bg-accent text-card"
@@ -63,13 +69,13 @@ export function LetterContent({ categories, messages }: LetterContentProps) {
             }`}
           >
             {category.name}
-          </button>
+          </Link>
         ))}
       </div>
 
       <div className="px-5">
-        {filteredMessages.length > 0 ? (
-          filteredMessages.map((message) => {
+        {messages.length > 0 ? (
+          messages.map((message) => {
             const expanded = expandedId === message.id;
 
             return (
@@ -104,9 +110,18 @@ export function LetterContent({ categories, messages }: LetterContentProps) {
           })
         ) : (
           <p className="rounded-[18px] border border-border bg-card px-5 py-8 text-center text-sm text-text-sub">
-            このカテゴリにはまだ手紙がありません。
+            {selectedCategoryId
+              ? "このカテゴリにはまだ手紙がありません。"
+              : "まだ手紙がありません。"}
           </p>
         )}
+
+        <ListPagination
+          basePath="/letter"
+          page={page}
+          totalPages={totalPages}
+          extraParams={categoryParams}
+        />
       </div>
     </>
   );

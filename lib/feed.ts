@@ -1,5 +1,4 @@
-import { getCalendarDaysSince, getTodayDateString } from "@/lib/format";
-import { isContentDateBeforeToday } from "@/lib/content-sort";
+import { getCalendarDaysSince } from "@/lib/format";
 
 export type FeedContentType =
   | "messages"
@@ -45,14 +44,6 @@ export function buildFeedText(item: FeedItem): string {
 }
 
 export function shouldShowFeedItem(item: FeedItem, isRead: boolean): boolean {
-  if (
-    item.contentDate &&
-    item.contentType === "novels" &&
-    isContentDateBeforeToday(item.contentDate, getTodayDateString())
-  ) {
-    return false;
-  }
-
   const daysSince = getCalendarDaysSince(item.occurredAt);
 
   if (daysSince >= 3) return false;

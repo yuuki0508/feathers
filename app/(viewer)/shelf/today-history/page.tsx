@@ -1,6 +1,13 @@
 import { AccessLogTracker } from "@/components/viewer/access-log-tracker";
+import { ListPagination } from "@/components/viewer/list-pagination";
 import { ShelfBackLink } from "@/components/viewer/shelf-back-link";
 import { SubHeader } from "@/components/viewer/sub-header";
+import {
+  clampPage,
+  getPageRange,
+  getTotalPages,
+  parsePageParam,
+} from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 import type { TodayMessage } from "@/lib/types/database";
 
@@ -12,12 +19,28 @@ function formatDisplayDate(dateStr: string): string {
   return dateStr;
 }
 
-export default async function TodayHistoryPage() {
+type TodayHistoryPageProps = {
+  searchParams: Promise<{ page?: string }>;
+};
+
+export default async function TodayHistoryPage({ searchParams }: TodayHistoryPageProps) {
+  const params = await searchParams;
+  const requestedPage = parsePageParam(params.page);
+
   const supabase = await createClient();
+  const { count } = await supabase
+    .from("today_message")
+    .select("*", { count: "exact", head: true });
+
+  const totalPages = getTotalPages(count ?? 0);
+  const page = clampPage(requestedPage, totalPages);
+  const { from, to } = getPageRange(page);
+
   const { data: messages } = await supabase
     .from("today_message")
     .select("*")
     .order("display_date", { ascending: false })
+    .range(from, to)
     .returns<TodayMessage[]>();
 
   return (
@@ -47,6 +70,11 @@ export default async function TodayHistoryPage() {
             まだ毎日のことばがありません。
           </p>
         )}
+        <ListPagination
+          basePath="/shelf/today-history"
+          page={page}
+          totalPages={totalPages}
+        />
       </div>
     </>
   );

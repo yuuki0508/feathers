@@ -18,9 +18,11 @@ import type { Novel } from "@/lib/types/database";
 
 function NovelForm({
   editing,
+  createFormDate,
   onCancel,
 }: {
   editing?: Novel | null;
+  createFormDate: string;
   onCancel: () => void;
 }) {
   const [state, formAction, pending] = useActionState(saveNovelAction, { error: null });
@@ -35,7 +37,7 @@ function NovelForm({
             type="date"
             name="posted_date"
             defaultValue={
-              editing ? toDateInputValue(editing.created_at) : getTodayDateString()
+              editing ? toDateInputValue(editing.created_at) : createFormDate
             }
             className={adminInputClass}
             required
@@ -89,6 +91,13 @@ function NovelForm({
 export function NovelAdmin({ novels }: { novels: Novel[] }) {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Novel | null>(null);
+  const [createFormDate, setCreateFormDate] = useState(() => getTodayDateString());
+
+  const openCreateForm = () => {
+    setCreateFormDate(getTodayDateString());
+    setEditing(null);
+    setShowForm(true);
+  };
 
   return (
     <>
@@ -97,10 +106,7 @@ export function NovelAdmin({ novels }: { novels: Novel[] }) {
         action={
           <AdminPrimaryButton
             type="button"
-            onClick={() => {
-              setEditing(null);
-              setShowForm(true);
-            }}
+            onClick={openCreateForm}
           >
             <i className="ti ti-plus" />
             新規追加
@@ -111,8 +117,9 @@ export function NovelAdmin({ novels }: { novels: Novel[] }) {
       <AdminPageContent>
         {showForm ? (
           <NovelForm
-            key={editing?.id ?? "create"}
+            key={editing?.id ?? `create-${createFormDate}`}
             editing={editing}
+            createFormDate={createFormDate}
             onCancel={() => {
               setEditing(null);
               setShowForm(false);

@@ -1,25 +1,45 @@
 import { AccessLogTracker } from "@/components/viewer/access-log-tracker";
 import { MemoryCard } from "@/components/viewer/memory-card";
+import { ListPagination } from "@/components/viewer/list-pagination";
 import { ShelfBackLink } from "@/components/viewer/shelf-back-link";
 import { SubHeader } from "@/components/viewer/sub-header";
-import { sortMemoriesByDateDesc } from "@/lib/content-sort";
+import {
+  clampPage,
+  getPageRange,
+  getTotalPages,
+  parsePageParam,
+} from "@/lib/pagination";
 import { getSignedPhotoUrl } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 import type { Memory } from "@/lib/types/database";
 
-export default async function MemoryPage() {
+type MemoryPageProps = {
+  searchParams: Promise<{ page?: string }>;
+};
+
+export default async function MemoryPage({ searchParams }: MemoryPageProps) {
+  const params = await searchParams;
+  const requestedPage = parsePageParam(params.page);
+
   const supabase = await createClient();
+  const { count } = await supabase
+    .from("memories")
+    .select("*", { count: "exact", head: true });
+
+  const totalPages = getTotalPages(count ?? 0);
+  const page = clampPage(requestedPage, totalPages);
+  const { from, to } = getPageRange(page);
+
   const { data: memories } = await supabase
     .from("memories")
     .select("*")
     .order("memory_date", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
+    .range(from, to)
     .returns<Memory[]>();
 
-  const sortedMemories = sortMemoriesByDateDesc(memories ?? []);
-
   const memoriesWithPhotos = await Promise.all(
-    sortedMemories.map(async (memory) => {
+    (memories ?? []).map(async (memory) => {
       const photoUrls = (
         await Promise.all([
           getSignedPhotoUrl(supabase, memory.photo_url),
@@ -55,6 +75,7 @@ export default async function MemoryPage() {
             まだ思い出がありません。
           </p>
         )}
+        <ListPagination basePath="/shelf/memory" page={page} totalPages={totalPages} />
       </div>
     </>
   );
