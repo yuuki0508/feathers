@@ -1,5 +1,5 @@
 import type { FeedItem } from "@/lib/feed";
-import { getMemoryContentDate, getMemorySortAt, getNovelContentDate, getNovelSortAt } from "@/lib/content-sort";
+import { getMemoryContentDate, getNovelContentDate } from "@/lib/content-sort";
 import { formatLikeNumber, truncateText } from "@/lib/format";
 
 type FeedRecord = {
@@ -91,7 +91,7 @@ export function buildFeedItems(data: FeedSourceData): FeedItem[] {
         label: "思い出",
         contentDate: getMemoryContentDate(item),
         href: "/shelf/memory",
-        sortAt: getMemorySortAt(item),
+        sortAt: event.occurredAt,
         ...event,
       };
     }),
@@ -128,7 +128,7 @@ export function buildFeedItems(data: FeedSourceData): FeedItem[] {
         detail: item.title,
         contentDate: getNovelContentDate(item),
         href: `/novel/${item.id}`,
-        sortAt: getNovelSortAt(item),
+        sortAt: event.occurredAt,
         ...event,
       };
     }),
