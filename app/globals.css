@@ -37,6 +37,36 @@ body {
   }
 }
 
+@keyframes home-like-spotlight-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes home-like-spotlight-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.home-like-spotlight--idle {
+  animation: home-like-spotlight-in 0.75s ease-out forwards;
+}
+
+.home-like-spotlight--leaving {
+  animation: home-like-spotlight-out 0.75s ease-in forwards;
+}
+
 .animate-float-heart {
   animation: float-heart 3.2s ease-in-out infinite;
 }

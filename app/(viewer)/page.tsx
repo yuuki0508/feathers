@@ -1,8 +1,12 @@
 import { AccessLogTracker } from "@/components/viewer/access-log-tracker";
 import { HomeFeed } from "@/components/viewer/home-feed";
+import {
+  HomeLikeSpotlight,
+  type HomeLikeItem,
+} from "@/components/viewer/home-like-spotlight";
 import { ServiceHeader } from "@/components/viewer/service-header";
 import { buildFeedItems } from "@/lib/feed-items";
-import { formatFullDate, getTodayDateString } from "@/lib/format";
+import { formatFullDate, formatLikeNumber, getTodayDateString } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import type { Diary, Like, Memory, Message, Novel, TodayMessage, WishlistItem } from "@/lib/types/database";
 
@@ -37,10 +41,10 @@ export default async function HomePage() {
       .returns<Pick<Memory, "id" | "created_at" | "updated_at" | "memory_date">[]>(),
     supabase
       .from("likes")
-      .select("id, created_at, updated_at, display_order")
+      .select("id, body, created_at, updated_at, display_order")
       .order("display_order", { ascending: true })
       .order("created_at", { ascending: true })
-      .returns<Pick<Like, "id" | "created_at" | "updated_at" | "display_order">[]>(),
+      .returns<Pick<Like, "id" | "body" | "created_at" | "updated_at" | "display_order">[]>(),
     supabase
       .from("diaries")
       .select("id, created_at, updated_at, title")
@@ -67,6 +71,12 @@ export default async function HomePage() {
     wishlistItems: wishlistItems ?? [],
   });
 
+  const homeLikes: HomeLikeItem[] = (likes ?? []).map((like, index) => ({
+    id: like.id,
+    body: like.body,
+    number: formatLikeNumber(index),
+  }));
+
   return (
     <>
       <AccessLogTracker pageType="ホーム" />
@@ -87,6 +97,8 @@ export default async function HomePage() {
           </p>
         </div>
       </section>
+
+      {homeLikes.length > 0 ? <HomeLikeSpotlight likes={homeLikes} /> : null}
 
       <HomeFeed items={feedItems} />
     </>
