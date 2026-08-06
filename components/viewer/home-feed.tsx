@@ -44,6 +44,11 @@ export function HomeFeed({ items }: HomeFeedProps) {
     if (item.contentType === "wishlist_items") {
       markContentRead("wishlist_items", item.id);
       setReadVersion((version) => version + 1);
+      return;
+    }
+    if (item.contentType === "karaoke_songs" || item.contentType === "muttering_replies") {
+      markContentRead(item.contentType, item.id);
+      setReadVersion((version) => version + 1);
     }
   };
 

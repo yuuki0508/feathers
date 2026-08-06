@@ -6,7 +6,9 @@ export type ReadContentType =
   | "likes"
   | "diaries"
   | "novels"
-  | "wishlist_items";
+  | "wishlist_items"
+  | "karaoke_songs"
+  | "muttering_replies";
 
 type ReadStore = Record<ReadContentType, string[]>;
 
@@ -17,6 +19,8 @@ const emptyStore = (): ReadStore => ({
   diaries: [],
   novels: [],
   wishlist_items: [],
+  karaoke_songs: [],
+  muttering_replies: [],
 });
 
 function loadStore(): ReadStore {
@@ -33,6 +37,8 @@ function loadStore(): ReadStore {
       diaries: parsed.diaries ?? [],
       novels: parsed.novels ?? [],
       wishlist_items: parsed.wishlist_items ?? [],
+      karaoke_songs: parsed.karaoke_songs ?? [],
+      muttering_replies: parsed.muttering_replies ?? [],
     };
   } catch {
     return emptyStore();

@@ -26,7 +26,10 @@ const NAV_SECTIONS = [
   },
   {
     title: "分析",
-    items: [{ href: "/admin/analytics", label: "アクセス分析", icon: "ti-chart-bar" }],
+    items: [
+      { href: "/admin/viewer-activity", label: "彼女のアクション", icon: "ti-bell" },
+      { href: "/admin/analytics", label: "アクセス分析", icon: "ti-chart-bar" },
+    ],
   },
   {
     title: "設定",

@@ -32,6 +32,16 @@ type WishlistFeedRecord = FeedRecord & {
   body: string;
 };
 
+type KaraokeFeedRecord = FeedRecord & {
+  title: string;
+  status: "pending" | "approved" | "rejected";
+  proposed_by: "admin" | "viewer";
+};
+
+type MutteringReplyFeedRecord = FeedRecord & {
+  body: string;
+};
+
 type FeedSourceData = {
   messages: MessageFeedRecord[];
   memories: MemoryFeedRecord[];
@@ -39,6 +49,8 @@ type FeedSourceData = {
   diaries: DiaryFeedRecord[];
   novels: NovelFeedRecord[];
   wishlistItems: WishlistFeedRecord[];
+  karaokeSongs: KaraokeFeedRecord[];
+  mutteringReplies: MutteringReplyFeedRecord[];
 };
 
 type FeedItemWithSort = FeedItem & {
@@ -65,6 +77,57 @@ function buildLikeNumberMap(likes: LikeFeedRecord[]): Map<string, string> {
   });
 
   return new Map(sorted.map((like, index) => [like.id, formatLikeNumber(index)]));
+}
+
+function wasUpdatedAfterCreate(record: FeedRecord): boolean {
+  return new Date(record.updated_at).getTime() - new Date(record.created_at).getTime() > 1000;
+}
+
+function buildKaraokeFeedItems(songs: KaraokeFeedRecord[]): FeedItemWithSort[] {
+  const items: FeedItemWithSort[] = [];
+
+  for (const song of songs) {
+    if (song.proposed_by === "admin") {
+      items.push({
+        id: `${song.id}:added`,
+        contentType: "karaoke_songs",
+        label: "カラオケ",
+        detail: truncateText(song.title, 30),
+        href: "/shelf/karaoke",
+        action: "added",
+        occurredAt: song.created_at,
+        sortAt: song.created_at,
+      });
+    }
+
+    if (song.status === "approved" && wasUpdatedAfterCreate(song)) {
+      items.push({
+        id: `${song.id}:approved`,
+        contentType: "karaoke_songs",
+        label: "カラオケ",
+        detail: truncateText(song.title, 30),
+        href: "/shelf/karaoke",
+        action: "approved",
+        occurredAt: song.updated_at,
+        sortAt: song.updated_at,
+      });
+    }
+
+    if (song.status === "rejected" && wasUpdatedAfterCreate(song)) {
+      items.push({
+        id: `${song.id}:rejected`,
+        contentType: "karaoke_songs",
+        label: "カラオケ",
+        detail: truncateText(song.title, 30),
+        href: "/shelf/karaoke",
+        action: "rejected",
+        occurredAt: song.updated_at,
+        sortAt: song.updated_at,
+      });
+    }
+  }
+
+  return items;
 }
 
 export function buildFeedItems(data: FeedSourceData): FeedItem[] {
@@ -138,6 +201,17 @@ export function buildFeedItems(data: FeedSourceData): FeedItem[] {
       label: "やりたいこと",
       detail: truncateText(item.body, 30),
       href: "/shelf/wishlist",
+      action: "added" as const,
+      occurredAt: item.created_at,
+      sortAt: item.created_at,
+    })),
+    ...buildKaraokeFeedItems(data.karaokeSongs),
+    ...data.mutteringReplies.map((item) => ({
+      id: item.id,
+      contentType: "muttering_replies" as const,
+      label: "メス犬のつぶやき",
+      detail: truncateText(item.body, 30),
+      href: "/shelf/mutterings",
       action: "added" as const,
       occurredAt: item.created_at,
       sortAt: item.created_at,
