@@ -59,13 +59,32 @@ export type WishlistItem = {
 export type KaraokeStatus = "pending" | "approved" | "rejected";
 
 /** admin = 管理画面ログイン中（彼）、viewer = 閲覧のみ（彼女） */
-export type KaraokeActor = "admin" | "viewer";
+export type SessionActor = "admin" | "viewer";
+
+/** @deprecated SessionActor を使用 */
+export type KaraokeActor = SessionActor;
 
 export type KaraokeSong = {
   id: string;
   title: string;
   status: KaraokeStatus;
   proposed_by: KaraokeActor;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Muttering = {
+  id: string;
+  body: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type MutteringReply = {
+  id: string;
+  muttering_id: string;
+  body: string;
+  author_type: SessionActor;
   created_at: string;
   updated_at: string;
 };
