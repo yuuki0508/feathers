@@ -56,6 +56,20 @@ export type WishlistItem = {
   updated_at: string;
 };
 
+export type KaraokeStatus = "pending" | "approved" | "rejected";
+
+/** admin = 管理画面ログイン中（彼）、viewer = 閲覧のみ（彼女） */
+export type KaraokeActor = "admin" | "viewer";
+
+export type KaraokeSong = {
+  id: string;
+  title: string;
+  status: KaraokeStatus;
+  proposed_by: KaraokeActor;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Novel = {
   id: string;
   title: string;

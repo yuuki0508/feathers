@@ -11,12 +11,14 @@ export default async function ShelfPage() {
     { count: diaryCount },
     { count: todayMessageCount },
     { count: wishlistCount },
+    { count: karaokeCount },
   ] = await Promise.all([
     supabase.from("memories").select("*", { count: "exact", head: true }),
     supabase.from("likes").select("*", { count: "exact", head: true }),
     supabase.from("diaries").select("*", { count: "exact", head: true }),
     supabase.from("today_message").select("*", { count: "exact", head: true }),
     supabase.from("wishlist_items").select("*", { count: "exact", head: true }),
+    supabase.from("karaoke_songs").select("*", { count: "exact", head: true }),
   ]);
 
   const items = [
@@ -49,6 +51,12 @@ export default async function ShelfPage() {
       icon: "ti-list-check",
       label: "やりたいこと",
       count: `${wishlistCount ?? 0}件`,
+    },
+    {
+      href: "/shelf/karaoke",
+      icon: "ti-microphone-2",
+      label: "カラオケ",
+      count: `${karaokeCount ?? 0}曲`,
     },
   ] as const;
 
