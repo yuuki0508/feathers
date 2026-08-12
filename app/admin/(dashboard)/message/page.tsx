@@ -12,6 +12,7 @@ export default async function AdminMessagePage() {
       .from("messages")
       .select("*, categories(name), message_tags(tag_id, tags(name))")
       .order("created_at", { ascending: false })
+      .order("updated_at", { ascending: false })
       .returns<MessageWithTags[]>(),
   ]);
 

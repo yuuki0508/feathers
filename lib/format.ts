@@ -54,6 +54,14 @@ export function dateStringToJstNoonIso(dateStr: string): string {
   return `${dateStr}T12:00:00+09:00`;
 }
 
+/** 投稿日が今日なら実際の投稿時刻、過去日ならその日の正午（JST） */
+export function resolvePostedCreatedAt(postedDate: string, timeZone = APP_TIMEZONE): string {
+  if (postedDate === getTodayDateString(timeZone)) {
+    return new Date().toISOString();
+  }
+  return dateStringToJstNoonIso(postedDate);
+}
+
 /** 暦日 YYYY-MM-DD から指定日数を引いた YYYY-MM-DD を返す */
 export function subtractCalendarDays(dateStr: string, days: number): string {
   const calendar = parseCalendarDate(dateStr);

@@ -2,7 +2,7 @@
 
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { createClient } from "@/lib/supabase/server";
-import { dateStringToJstNoonIso, parseFormDateString } from "@/lib/format";
+import { dateStringToJstNoonIso, parseFormDateString, resolvePostedCreatedAt } from "@/lib/format";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { failAdmin } from "@/lib/actions/admin/utils";
@@ -31,7 +31,7 @@ async function createNovel(formData: FormData) {
   const { error } = await supabase.from("novels").insert({
     title: title.trim(),
     body: body.trim(),
-    created_at: dateStringToJstNoonIso(postedDate),
+    created_at: resolvePostedCreatedAt(postedDate),
   });
 
   if (error) failAdmin(error.message);

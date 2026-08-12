@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AdminCard,
   AdminField,
@@ -26,6 +26,13 @@ type MessageFormProps = {
 
 function MessageForm({ categories, tags, editing, onCancel }: MessageFormProps) {
   const selectedTagIds = editing?.message_tags.map((entry) => entry.tag_id) ?? [];
+  const [categoryId, setCategoryId] = useState(
+    editing?.category_id ?? categories[0]?.id ?? "",
+  );
+
+  useEffect(() => {
+    setCategoryId(editing?.category_id ?? categories[0]?.id ?? "");
+  }, [editing?.id, editing?.category_id, categories]);
 
   return (
     <AdminCard title={editing ? "メッセージを編集" : "新規メッセージ"}>
@@ -50,7 +57,8 @@ function MessageForm({ categories, tags, editing, onCancel }: MessageFormProps) 
         <AdminField label="カテゴリ" hint="※彼女の画面に表示">
           <select
             name="category_id"
-            defaultValue={editing?.category_id ?? categories[0]?.id ?? ""}
+            value={categoryId}
+            onChange={(event) => setCategoryId(event.target.value)}
             className={adminInputClass}
             required
           >
@@ -116,20 +124,24 @@ export function MessageAdmin({
   messages: MessageWithTags[];
 }) {
   const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<MessageWithTags | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editing =
+    editingId === null
+      ? null
+      : (messages.find((message) => message.id === editingId) ?? null);
 
   const openCreate = () => {
-    setEditing(null);
+    setEditingId(null);
     setShowForm(true);
   };
 
   const openEdit = (message: MessageWithTags) => {
-    setEditing(message);
+    setEditingId(message.id);
     setShowForm(true);
   };
 
   const closeForm = () => {
-    setEditing(null);
+    setEditingId(null);
     setShowForm(false);
   };
 

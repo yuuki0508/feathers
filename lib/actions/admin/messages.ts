@@ -1,7 +1,11 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { dateStringToJstNoonIso, parseFormDateString } from "@/lib/format";
+import {
+  dateStringToJstNoonIso,
+  parseFormDateString,
+  resolvePostedCreatedAt,
+} from "@/lib/format";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { failAdmin } from "@/lib/actions/admin/utils";
@@ -47,7 +51,7 @@ export async function createMessage(formData: FormData) {
     .insert({
       body: body.trim(),
       category_id: categoryId,
-      created_at: dateStringToJstNoonIso(postedDate),
+      created_at: resolvePostedCreatedAt(postedDate),
     })
     .select("id")
     .single();
@@ -74,19 +78,27 @@ export async function updateMessage(formData: FormData) {
 
   const supabase = await createClient();
   const postedDate = parseFormDateString(formData.get("posted_date"));
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("messages")
     .update({
       body: body.trim(),
       category_id: categoryId,
       created_at: dateStringToJstNoonIso(postedDate),
     })
-    .eq("id", id);
+    .eq("id", id)
+    .select("id, category_id")
+    .single();
 
-  if (error) failAdmin(error.message);
+  if (error || !data) {
+    failAdmin(error?.message ?? "更新に失敗しました");
+  }
+  if (data.category_id !== categoryId) {
+    failAdmin("カテゴリの保存に失敗しました");
+  }
 
   await syncMessageTags(id, parseTagIds(formData));
   revalidateAdmin();
+  redirect("/admin/message");
 }
 
 export async function deleteMessage(formData: FormData) {

@@ -47,6 +47,7 @@ export default async function LetterPage({ searchParams }: LetterPageProps) {
     .from("messages")
     .select("*, categories(name)")
     .order("created_at", { ascending: false })
+    .order("updated_at", { ascending: false })
     .range(from, to);
 
   if (categoryId) {
