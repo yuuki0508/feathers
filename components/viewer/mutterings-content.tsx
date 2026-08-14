@@ -15,7 +15,7 @@ import {
 } from "@/lib/mutterings/constants";
 import type { Muttering, MutteringReply, SessionActor } from "@/lib/types/database";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 type MutteringsContentProps = {
   mutterings: Muttering[];
@@ -59,6 +59,92 @@ function MutteringTextarea({
   );
 }
 
+function ComposeMutteringModal({
+  open,
+  body,
+  error,
+  pending,
+  onBodyChange,
+  onClose,
+  onSubmit,
+}: {
+  open: boolean;
+  body: string;
+  error: string | null;
+  pending: boolean;
+  onBodyChange: (value: string) => void;
+  onClose: () => void;
+  onSubmit: () => void;
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const timer = window.setTimeout(() => textareaRef.current?.focus(), 50);
+    return () => window.clearTimeout(timer);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const canSubmit = body.trim().length > 0 && !pending;
+
+  return (
+    <div className="fixed inset-0 z-[60] bg-cream">
+      <div className="mx-auto flex h-full w-full max-w-[390px] flex-col">
+        <header className="flex items-center justify-between border-b border-border px-4 py-3">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={pending}
+            className="text-sm text-text-sub disabled:opacity-70"
+          >
+            キャンセル
+          </button>
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={!canSubmit}
+            className="rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-card disabled:opacity-50"
+          >
+            {pending ? "..." : "つぶやく"}
+          </button>
+        </header>
+
+        <div className="flex min-h-0 flex-1 flex-col px-5 py-4">
+          <textarea
+            ref={textareaRef}
+            value={body}
+            onChange={(event) => onBodyChange(event.target.value)}
+            placeholder="いまの気持ちをつぶやく…"
+            disabled={pending}
+            maxLength={MUTTERING_MAX_LENGTH}
+            className="min-h-0 flex-1 resize-none bg-transparent text-base leading-relaxed text-text outline-none placeholder:text-[#c9b0a0] disabled:opacity-70"
+          />
+          <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+            {error ? <p className="text-sm text-accent">{error}</p> : <span />}
+            <p className="text-[11px] tabular-nums text-text-muted">
+              {body.length}/{MUTTERING_MAX_LENGTH}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MutteringsContent({
   mutterings,
   repliesByMutteringId,
@@ -68,6 +154,7 @@ export function MutteringsContent({
   const [pending, startTransition] = useTransition();
   const [postError, setPostError] = useState<string | null>(null);
   const [postBody, setPostBody] = useState("");
+  const [showCompose, setShowCompose] = useState(false);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [editPostBody, setEditPostBody] = useState("");
   const [editPostError, setEditPostError] = useState<string | null>(null);
@@ -78,8 +165,20 @@ export function MutteringsContent({
 
   const canPost = actor === "viewer";
 
-  const handlePostSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const openCompose = () => {
+    if (pending) return;
+    setPostError(null);
+    setShowCompose(true);
+  };
+
+  const closeCompose = () => {
+    if (pending) return;
+    setShowCompose(false);
+    setPostError(null);
+  };
+
+  const submitPost = () => {
+    if (pending || postBody.trim().length === 0) return;
     setPostError(null);
 
     const formData = new FormData();
@@ -92,6 +191,7 @@ export function MutteringsContent({
         return;
       }
       setPostBody("");
+      setShowCompose(false);
       router.refresh();
     });
   };
@@ -203,7 +303,7 @@ export function MutteringsContent({
   return (
     <>
       {mutterings.length > 0 ? (
-        <ul className="space-y-4">
+        <ul className={`space-y-4 ${canPost ? "pb-24" : ""}`}>
           {mutterings.map((muttering) => {
             const replies = repliesByMutteringId[muttering.id] ?? [];
             const isEditingPost = editingPostId === muttering.id;
@@ -391,28 +491,40 @@ export function MutteringsContent({
           })}
         </ul>
       ) : (
-        <p className="rounded-[18px] border border-border bg-card px-5 py-8 text-center text-sm text-text-sub">
+        <p
+          className={`rounded-[18px] border border-border bg-card px-5 py-8 text-center text-sm text-text-sub ${
+            canPost ? "mb-24" : ""
+          }`}
+        >
           まだつぶやきがありません。
         </p>
       )}
 
       {canPost ? (
-        <form onSubmit={handlePostSubmit} className="mt-6 flex flex-col gap-2.5">
-          <MutteringTextarea
-            value={postBody}
-            onChange={setPostBody}
-            placeholder="いまの気持ちをつぶやく…"
-            disabled={pending}
+        <>
+          {!showCompose ? (
+            <div className="pointer-events-none fixed inset-x-0 bottom-24 z-40 mx-auto w-full max-w-[390px] px-5">
+              <button
+                type="button"
+                onClick={openCompose}
+                aria-label="新規つぶやき"
+                className="pointer-events-auto ml-auto flex size-14 items-center justify-center rounded-full bg-accent text-card shadow-[0_4px_16px_rgba(196,106,106,0.35)] transition-transform active:scale-95"
+              >
+                <i className="ti ti-pencil text-xl" />
+              </button>
+            </div>
+          ) : null}
+
+          <ComposeMutteringModal
+            open={showCompose}
+            body={postBody}
+            error={postError}
+            pending={pending}
+            onBodyChange={setPostBody}
+            onClose={closeCompose}
+            onSubmit={submitPost}
           />
-          {postError ? <p className="text-center text-sm text-accent">{postError}</p> : null}
-          <button
-            type="submit"
-            disabled={pending}
-            className="w-full rounded-2xl bg-accent py-3.5 text-sm tracking-wide text-card disabled:opacity-70"
-          >
-            {pending ? "..." : "つぶやく"}
-          </button>
-        </form>
+        </>
       ) : null}
     </>
   );

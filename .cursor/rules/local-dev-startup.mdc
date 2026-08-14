@@ -1,0 +1,43 @@
+---
+description: ローカルアプリ起動手順。ユーザーがローカル起動を依頼したときに従う。
+alwaysApply: true
+---
+
+# ローカルアプリ起動
+
+ユーザーが「ローカルアプリを起動」「ローカルで起動」などと指示したら、README.md の手順に従い **自分でコマンドを実行** する（手順の説明だけで終わらない）。
+
+## 起動コマンド
+
+リポジトリルートで:
+
+```bash
+npm run dev:local:detached
+```
+
+- Supabase 起動 → Docker で Next.js 起動（バックグラウンド）
+- 対話的にログを見たい場合のみ `npm run dev:local` を使う
+
+## 起動前の確認
+
+1. 既に起動済みなら再実行しない
+   - `docker ps --filter name=feathers-app`
+   - `npx supabase status`
+2. 未起動なら上記コマンドを実行し、完了まで待つ
+
+## 起動確認
+
+- http://localhost:3000/login が 200 を返す
+- http://localhost:3000/supabase-api/auth/v1/health が 200 を返す
+
+## 停止（依頼があった場合）
+
+```bash
+npm run dev:local:down
+npm run supabase:stop   # Supabase も止めるとき
+```
+
+## 使わないこと
+
+- `npm run dev` 単体（Docker とポート競合し、Supabase 未起動になりうる）
+- `docker compose up` 単体（Supabase 起動が含まれない）

@@ -11,4 +11,11 @@ services:
       - /app/.next
     env_file:
       - .env.local
-    command: npm run dev
+    environment:
+      SUPABASE_INTERNAL_URL: http://host.docker.internal:55421
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: >
+      sh -c "chmod +x scripts/wait-for-supabase.sh &&
+      scripts/wait-for-supabase.sh http://host.docker.internal:55421 &&
+      npm run dev"

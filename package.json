@@ -4,6 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:local": "bash scripts/dev-local.sh",
+    "dev:local:detached": "npx supabase start && docker compose up -d --build app",
+    "dev:local:down": "docker compose down",
+    "supabase:start": "npx supabase start",
+    "supabase:stop": "npx supabase stop",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

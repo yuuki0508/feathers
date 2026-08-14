@@ -1,13 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { HeartsAnimation } from "@/components/viewer/hearts-animation";
 import { createClient } from "@/lib/supabase/client";
 import { getAuthEmail } from "@/lib/auth/emails";
 
 export function LoginForm() {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,22 +21,29 @@ export function LoginForm() {
     }
 
     setPending(true);
-    const supabase = createClient();
-    const email = getAuthEmail();
+    try {
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: getAuthEmail(),
+        password,
+      });
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+      if (signInError) {
+        const message =
+          signInError.message.toLowerCase().includes("fetch") ||
+          signInError.message.toLowerCase().includes("network")
+            ? "サーバーに接続できません。しばらく待ってから再度お試しください。"
+            : "パスワードが正しくありません";
+        setError(message);
+        return;
+      }
 
-    if (signInError) {
-      setError("パスワードが正しくありません");
+      window.location.assign("/");
+    } catch {
+      setError("サーバーに接続できません。しばらく待ってから再度お試しください。");
+    } finally {
       setPending(false);
-      return;
     }
-
-    router.push("/");
-    router.refresh();
   };
 
   return (

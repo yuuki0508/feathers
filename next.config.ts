@@ -1,11 +1,30 @@
 import type { NextConfig } from "next";
 
+function getSupabaseRewriteTarget(): string | null {
+  const target =
+    process.env.SUPABASE_INTERNAL_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!target || target.includes("supabase.co")) {
+    return null;
+  }
+  return target.replace(/\/$/, "");
+}
+
+const supabaseRewriteTarget = getSupabaseRewriteTarget();
+
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",
     },
   },
+  rewrites: supabaseRewriteTarget
+    ? async () => [
+        {
+          source: "/supabase-api/:path*",
+          destination: `${supabaseRewriteTarget}/:path*`,
+        },
+      ]
+    : undefined,
   headers: async () => [
     {
       source: "/sw.js",
