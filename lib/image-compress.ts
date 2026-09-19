@@ -1,5 +1,3 @@
-import sharp from "sharp";
-
 const MAX_DIMENSION = 1920;
 const JPEG_QUALITY = 82;
 
@@ -9,8 +7,9 @@ export type CompressedImage = {
   extension: string;
 };
 
-/** 思い出写真を Storage 保存用にリサイズ・JPEG 圧縮する */
+/** 思い出・NOTE 写真を Storage 保存用にリサイズ・JPEG 圧縮する */
 export async function compressMemoryPhoto(input: Buffer): Promise<CompressedImage> {
+  const sharp = (await import("sharp")).default;
   const buffer = await sharp(input)
     .rotate()
     .resize(MAX_DIMENSION, MAX_DIMENSION, {

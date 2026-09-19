@@ -1,5 +1,4 @@
 import { randomUUID } from "crypto";
-import { compressMemoryPhoto } from "@/lib/image-compress";
 import { NOTE_MAX_PHOTOS, NOTES_BUCKET } from "@/lib/notes/constants";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,8 +19,13 @@ export function getKeptNotePhotoPaths(formData: FormData): string[] {
 export async function uploadNotePhotos(
   files: File[],
 ): Promise<{ paths: string[]; error?: string }> {
+  if (files.length === 0) {
+    return { paths: [] };
+  }
+
   const supabase = await createClient();
   const paths: string[] = [];
+  const { compressMemoryPhoto } = await import("@/lib/image-compress");
 
   for (const file of files) {
     const originalBuffer = Buffer.from(await file.arrayBuffer());
@@ -40,7 +44,7 @@ export async function uploadNotePhotos(
         contentType = compressed.contentType;
         extension = compressed.extension;
       } catch {
-        // 非対応形式などは元ファイルのまま保存
+        // Vercel で sharp が読めない場合などは、クライアント圧縮済みの元ファイルを保存
       }
     }
 

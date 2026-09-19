@@ -3,7 +3,6 @@
 import { randomUUID } from "crypto";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { parseFormDateString } from "@/lib/format";
-import { compressMemoryPhoto } from "@/lib/image-compress";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -33,12 +32,13 @@ async function uploadPhotoFile(
 
   if (isImage) {
     try {
+      const { compressMemoryPhoto } = await import("@/lib/image-compress");
       const compressed = await compressMemoryPhoto(originalBuffer);
       uploadBuffer = Buffer.from(compressed.buffer);
       contentType = compressed.contentType;
       extension = compressed.extension;
     } catch {
-      // 非対応形式などは元ファイルのまま保存
+      // Vercel で sharp が読めない場合などは、クライアント圧縮済みの元ファイルを保存
     }
   }
 

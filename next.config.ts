@@ -12,6 +12,7 @@ function getSupabaseRewriteTarget(): string | null {
 const supabaseRewriteTarget = getSupabaseRewriteTarget();
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["sharp", "@img/sharp-linux-x64", "@img/sharp-libvips-linux-x64"],
   experimental: {
     serverActions: {
       bodySizeLimit: "16mb",
