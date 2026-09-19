@@ -89,6 +89,29 @@ export type MutteringReply = {
   updated_at: string;
 };
 
+export type Note = {
+  id: string;
+  body: string;
+  author_type: SessionActor;
+  photo_paths: string[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type NoteReply = {
+  id: string;
+  note_id: string;
+  body: string;
+  author_type: SessionActor;
+  photo_paths: string[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type NoteWithPhotos = Note & { photoUrls: string[] };
+
+export type NoteReplyWithPhotos = NoteReply & { photoUrls: string[] };
+
 export type Novel = {
   id: string;
   title: string;

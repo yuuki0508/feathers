@@ -82,6 +82,26 @@ create table novels (
   updated_at timestamptz default now()
 );
 
+-- NOTE（お互いが書き込むスレッド）
+create table notes (
+  id uuid primary key default gen_random_uuid(),
+  body text not null check (char_length(body) <= 500),
+  author_type text not null check (author_type in ('admin', 'viewer')),
+  photo_paths text[] not null default '{}',
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table note_replies (
+  id uuid primary key default gen_random_uuid(),
+  note_id uuid not null references notes(id) on delete cascade,
+  body text not null check (char_length(body) <= 500),
+  author_type text not null check (author_type in ('admin', 'viewer')),
+  photo_paths text[] not null default '{}',
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
 -- アクセスログ（分析用）
 create table access_logs (
   id uuid primary key default gen_random_uuid(),
@@ -106,6 +126,8 @@ alter table memories     enable row level security;
 alter table likes        enable row level security;
 alter table diaries      enable row level security;
 alter table novels       enable row level security;
+alter table notes        enable row level security;
+alter table note_replies enable row level security;
 alter table access_logs  enable row level security;
 
 -- 認証済みユーザーに全操作を許可するポリシー
@@ -118,6 +140,8 @@ create policy "authenticated users only" on memories     for all to authenticate
 create policy "authenticated users only" on likes        for all to authenticated using (true) with check (true);
 create policy "authenticated users only" on diaries      for all to authenticated using (true) with check (true);
 create policy "authenticated users only" on novels       for all to authenticated using (true) with check (true);
+create policy "authenticated users only" on notes        for all to authenticated using (true) with check (true);
+create policy "authenticated users only" on note_replies for all to authenticated using (true) with check (true);
 create policy "authenticated users only" on access_logs  for all to authenticated using (true) with check (true);
 
 -- ============================================================
@@ -151,6 +175,10 @@ create trigger set_updated_at before update on likes
 create trigger set_updated_at before update on diaries
   for each row execute function public.set_updated_at();
 create trigger set_updated_at before update on novels
+  for each row execute function public.set_updated_at();
+create trigger set_updated_at before update on notes
+  for each row execute function public.set_updated_at();
+create trigger set_updated_at before update on note_replies
   for each row execute function public.set_updated_at();
 create trigger set_updated_at before update on access_logs
   for each row execute function public.set_updated_at();

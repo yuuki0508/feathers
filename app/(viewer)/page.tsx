@@ -8,7 +8,7 @@ import { ServiceHeader } from "@/components/viewer/service-header";
 import { buildFeedItems } from "@/lib/feed-items";
 import { formatFullDate, formatLikeNumber, getTodayDateString } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
-import type { Diary, KaraokeSong, Like, Memory, Message, MutteringReply, Novel, TodayMessage, WishlistItem } from "@/lib/types/database";
+import type { Diary, KaraokeSong, Like, Memory, Message, MutteringReply, Note, NoteReply, Novel, TodayMessage, WishlistItem } from "@/lib/types/database";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -23,6 +23,8 @@ export default async function HomePage() {
     { data: wishlistItems },
     { data: karaokeSongs },
     { data: mutteringReplies },
+    { data: notes },
+    { data: noteReplies },
   ] = await Promise.all([
     supabase
       .from("today_message")
@@ -75,6 +77,18 @@ export default async function HomePage() {
       .eq("author_type", "admin")
       .order("created_at", { ascending: false })
       .returns<Pick<MutteringReply, "id" | "body" | "created_at" | "updated_at">[]>(),
+    supabase
+      .from("notes")
+      .select("id, body, created_at, updated_at")
+      .eq("author_type", "admin")
+      .order("created_at", { ascending: false })
+      .returns<Pick<Note, "id" | "body" | "created_at" | "updated_at">[]>(),
+    supabase
+      .from("note_replies")
+      .select("id, body, created_at, updated_at")
+      .eq("author_type", "admin")
+      .order("created_at", { ascending: false })
+      .returns<Pick<NoteReply, "id" | "body" | "created_at" | "updated_at">[]>(),
   ]);
 
   const feedItems = buildFeedItems({
@@ -86,6 +100,8 @@ export default async function HomePage() {
     wishlistItems: wishlistItems ?? [],
     karaokeSongs: karaokeSongs ?? [],
     mutteringReplies: mutteringReplies ?? [],
+    notes: notes ?? [],
+    noteReplies: noteReplies ?? [],
   });
 
   const homeLikes: HomeLikeItem[] = (likes ?? []).map((like, index) => ({

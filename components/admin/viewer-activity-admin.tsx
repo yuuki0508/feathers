@@ -23,7 +23,8 @@ type ViewerActivityAdminProps = {
 function ActivityTag({ item }: { item: ViewerActivityItem }) {
   const muted =
     item.type === "karaoke_rejected" ||
-    item.type === "muttering_reply";
+    item.type === "muttering_reply" ||
+    item.type === "note_reply";
 
   return <AdminTag muted={muted}>{getViewerActivityLabel(item.type)}</AdminTag>;
 }
@@ -34,7 +35,7 @@ export function ViewerActivityAdmin({ items, page, totalPages }: ViewerActivityA
       <AdminPageHeader title="彼女のアクション" />
       <AdminPageContent>
         <AdminCard
-          title="つぶやき・カラオケの反応"
+          title="つぶやき・NOTE・カラオケの反応"
           description="彼女側（非管理者）の投稿・返信・候補追加、およびカラオケへの採用/見送り"
         >
           {items.length > 0 ? (

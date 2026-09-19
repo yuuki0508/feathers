@@ -14,7 +14,7 @@ const supabaseRewriteTarget = getSupabaseRewriteTarget();
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: "10mb",
+      bodySizeLimit: "16mb",
     },
   },
   rewrites: supabaseRewriteTarget
@@ -46,6 +46,12 @@ const nextConfig: NextConfig = {
         protocol: "http",
         hostname: "127.0.0.1",
         port: "54321",
+        pathname: "/storage/v1/object/**",
+      },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "55421",
         pathname: "/storage/v1/object/**",
       },
       {

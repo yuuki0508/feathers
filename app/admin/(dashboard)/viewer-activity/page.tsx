@@ -5,7 +5,7 @@ import {
 } from "@/lib/admin/viewer-activity";
 import { clampPage, parsePageParam } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
-import type { KaraokeSong, Muttering, MutteringReply } from "@/lib/types/database";
+import type { KaraokeSong, Muttering, MutteringReply, Note, NoteReply } from "@/lib/types/database";
 
 const ADMIN_ACTIVITY_PAGE_SIZE = 30;
 
@@ -20,8 +20,13 @@ export default async function AdminViewerActivityPage({
   const requestedPage = parsePageParam(params.page);
 
   const supabase = await createClient();
-  const [{ data: mutterings }, { data: mutteringReplies }, { data: karaokeSongs }] =
-    await Promise.all([
+  const [
+    { data: mutterings },
+    { data: mutteringReplies },
+    { data: notes },
+    { data: noteReplies },
+    { data: karaokeSongs },
+  ] = await Promise.all([
       supabase
         .from("mutterings")
         .select("id, body, created_at, updated_at")
@@ -40,6 +45,24 @@ export default async function AdminViewerActivityPage({
           >
         >(),
       supabase
+        .from("notes")
+        .select("id, body, created_at, updated_at")
+        .eq("author_type", "viewer")
+        .order("created_at", { ascending: false })
+        .returns<Note[]>(),
+      supabase
+        .from("note_replies")
+        .select("id, body, author_type, note_id, created_at, updated_at, notes(body)")
+        .eq("author_type", "viewer")
+        .order("created_at", { ascending: false })
+        .returns<
+          Array<
+            NoteReply & {
+              notes: Pick<Note, "body"> | null;
+            }
+          >
+        >(),
+      supabase
         .from("karaoke_songs")
         .select("id, title, status, proposed_by, created_at, updated_at")
         .order("created_at", { ascending: false })
@@ -49,6 +72,8 @@ export default async function AdminViewerActivityPage({
   const allItems = buildViewerActivityItems({
     mutterings: mutterings ?? [],
     mutteringReplies: mutteringReplies ?? [],
+    notes: notes ?? [],
+    noteReplies: noteReplies ?? [],
     karaokeSongs: karaokeSongs ?? [],
   });
 

@@ -77,3 +77,25 @@ export async function compressFormImageField(
 
   formData.set(fieldName, compressed);
 }
+
+export async function compressFormImageFiles(
+  formData: FormData,
+  fieldName: string,
+  label: string,
+): Promise<void> {
+  const files = formData
+    .getAll(fieldName)
+    .filter((value): value is File => value instanceof File && value.size > 0);
+
+  if (files.length === 0) return;
+
+  formData.delete(fieldName);
+
+  for (const [index, file] of files.entries()) {
+    const compressed = await compressImageFile(file);
+    if (compressed.size > MAX_UPLOAD_BYTES) {
+      throw new Error(`${label}${index + 1}が大きすぎます。別の画像をお試しください。`);
+    }
+    formData.append(fieldName, compressed);
+  }
+}

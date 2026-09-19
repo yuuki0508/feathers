@@ -46,7 +46,12 @@ export function HomeFeed({ items }: HomeFeedProps) {
       setReadVersion((version) => version + 1);
       return;
     }
-    if (item.contentType === "karaoke_songs" || item.contentType === "muttering_replies") {
+    if (
+      item.contentType === "karaoke_songs" ||
+      item.contentType === "muttering_replies" ||
+      item.contentType === "notes" ||
+      item.contentType === "note_replies"
+    ) {
       markContentRead(item.contentType, item.id);
       setReadVersion((version) => version + 1);
     }

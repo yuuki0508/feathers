@@ -1,0 +1,26 @@
+---
+description: スキーマ変更は Supabase migrate ではなく DDL で書く。
+alwaysApply: true
+---
+
+# スキーマ変更は DDL
+
+DB の変更は `supabase/migrations/` にマイグレーションを作らない。`spec/ddl/` に実行用 DDL を置き、現行定義は `spec/create_tables.sql` に反映する。
+
+## やること
+
+- 新規テーブル・列・制約・Storage は `spec/ddl/*.sql` に CREATE / ALTER で書く
+- 本番・ローカルとも SQL Editor または `psql` でその DDL を実行する
+- `spec/create_tables.sql` を最終形に合わせて更新する
+
+## やらないこと
+
+- `supabase/migrations/` への新規ファイル追加
+- `npx supabase migration up` / `db push` でスキーマを当てること
+- タイムスタンプ付き migrate 用ファイル（例: `20260919124000_create_notes.sql`）
+
+```sql
+-- ❌ BAD: supabase/migrations/20260919124000_create_notes.sql
+-- ✅ GOOD: spec/ddl/create_notes.sql
+create table if not exists notes ( ... );
+```

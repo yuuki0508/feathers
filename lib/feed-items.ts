@@ -42,6 +42,10 @@ type MutteringReplyFeedRecord = FeedRecord & {
   body: string;
 };
 
+type NoteFeedRecord = FeedRecord & {
+  body: string;
+};
+
 type FeedSourceData = {
   messages: MessageFeedRecord[];
   memories: MemoryFeedRecord[];
@@ -51,6 +55,8 @@ type FeedSourceData = {
   wishlistItems: WishlistFeedRecord[];
   karaokeSongs: KaraokeFeedRecord[];
   mutteringReplies: MutteringReplyFeedRecord[];
+  notes: NoteFeedRecord[];
+  noteReplies: NoteFeedRecord[];
 };
 
 type FeedItemWithSort = FeedItem & {
@@ -212,6 +218,28 @@ export function buildFeedItems(data: FeedSourceData): FeedItem[] {
       label: "メス犬のつぶやき",
       detail: truncateText(item.body, 30),
       href: "/shelf/mutterings",
+      action: "added" as const,
+      occurredAt: item.created_at,
+      sortAt: item.created_at,
+    })),
+    ...data.notes.map((item) => {
+      const event = resolveFeedEvent(item);
+      return {
+        id: item.id,
+        contentType: "notes" as const,
+        label: "NOTE",
+        detail: truncateText(item.body, 30),
+        href: "/shelf/notes",
+        sortAt: event.occurredAt,
+        ...event,
+      };
+    }),
+    ...data.noteReplies.map((item) => ({
+      id: item.id,
+      contentType: "note_replies" as const,
+      label: "NOTE",
+      detail: truncateText(item.body, 30),
+      href: "/shelf/notes",
       action: "added" as const,
       occurredAt: item.created_at,
       sortAt: item.created_at,

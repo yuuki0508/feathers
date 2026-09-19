@@ -225,6 +225,7 @@ export function AnalyticsDashboard({
                 <option value="お楽しみ">お楽しみ</option>
                 <option value="好きなところ">好きなところ</option>
                 <option value="ホーム">ホーム</option>
+                <option value="NOTE">NOTE</option>
               </select>
               <select
                 value={period}

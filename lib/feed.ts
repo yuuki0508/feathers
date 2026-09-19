@@ -8,7 +8,9 @@ export type FeedContentType =
   | "novels"
   | "wishlist_items"
   | "karaoke_songs"
-  | "muttering_replies";
+  | "muttering_replies"
+  | "notes"
+  | "note_replies";
 
 export type FeedItem = {
   id: string;
@@ -47,9 +49,14 @@ export function buildFeedText(item: FeedItem): string {
         ? `カラオケ「${item.detail}」が候補として追加されました。`
         : "カラオケ曲が候補として追加されました。";
     case "muttering_replies":
+    case "note_replies":
       return item.detail
         ? `${item.label}に返信がありました。「${item.detail}」`
         : `${item.label}に返信がありました。`;
+    case "notes":
+      return item.detail
+        ? `${item.label}が${verb}されました。「${item.detail}」`
+        : `${item.label}が${verb}されました。`;
     case "messages":
       return item.detail
         ? `${item.label}（${item.detail}）が${verb}されました。`

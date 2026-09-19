@@ -13,6 +13,7 @@ export default async function ShelfPage() {
     { count: wishlistCount },
     { count: karaokeCount },
     { count: mutteringsCount },
+    { count: notesCount },
   ] = await Promise.all([
     supabase.from("memories").select("*", { count: "exact", head: true }),
     supabase.from("likes").select("*", { count: "exact", head: true }),
@@ -21,6 +22,7 @@ export default async function ShelfPage() {
     supabase.from("wishlist_items").select("*", { count: "exact", head: true }),
     supabase.from("karaoke_songs").select("*", { count: "exact", head: true }),
     supabase.from("mutterings").select("*", { count: "exact", head: true }),
+    supabase.from("notes").select("*", { count: "exact", head: true }),
   ]);
 
   const items = [
@@ -65,6 +67,12 @@ export default async function ShelfPage() {
       icon: "ti-dog",
       label: "つぶやき",
       count: `${mutteringsCount ?? 0}件`,
+    },
+    {
+      href: "/shelf/notes",
+      icon: "ti-notes",
+      label: "NOTE",
+      count: `${notesCount ?? 0}件`,
     },
   ] as const;
 

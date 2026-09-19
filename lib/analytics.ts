@@ -20,7 +20,8 @@ export type PageTypeFilter =
   | "日記"
   | "お楽しみ"
   | "好きなところ"
-  | "ホーム";
+  | "ホーム"
+  | "NOTE";
 
 function jstDayStart(dateStr: string): Date {
   return new Date(`${dateStr}T00:00:00${JST_OFFSET}`);

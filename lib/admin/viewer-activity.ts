@@ -1,9 +1,11 @@
 import { formatFeedDateTime } from "@/lib/format";
-import type { KaraokeSong, Muttering, MutteringReply } from "@/lib/types/database";
+import type { KaraokeSong, Muttering, MutteringReply, Note, NoteReply } from "@/lib/types/database";
 
 export type ViewerActivityType =
   | "muttering_post"
   | "muttering_reply"
+  | "note_post"
+  | "note_reply"
   | "karaoke_candidate"
   | "karaoke_approved"
   | "karaoke_rejected";
@@ -20,6 +22,8 @@ export type ViewerActivityItem = {
 const ACTIVITY_LABEL: Record<ViewerActivityType, string> = {
   muttering_post: "つぶやき",
   muttering_reply: "つぶやき返信",
+  note_post: "NOTE",
+  note_reply: "NOTE返信",
   karaoke_candidate: "カラオケ候補",
   karaoke_approved: "カラオケ採用",
   karaoke_rejected: "カラオケ見送り",
@@ -27,6 +31,10 @@ const ACTIVITY_LABEL: Record<ViewerActivityType, string> = {
 
 type MutteringReplyWithParent = MutteringReply & {
   mutterings: Pick<Muttering, "body"> | null;
+};
+
+type NoteReplyWithParent = NoteReply & {
+  notes: Pick<Note, "body"> | null;
 };
 
 function wasUpdatedAfterCreate(createdAt: string, updatedAt: string): boolean {
@@ -40,6 +48,8 @@ export function getViewerActivityLabel(type: ViewerActivityType): string {
 export function buildViewerActivityItems(input: {
   mutterings: Muttering[];
   mutteringReplies: MutteringReplyWithParent[];
+  notes: Note[];
+  noteReplies: NoteReplyWithParent[];
   karaokeSongs: KaraokeSong[];
 }): ViewerActivityItem[] {
   const items: ViewerActivityItem[] = [];
@@ -64,6 +74,27 @@ export function buildViewerActivityItems(input: {
         ? `元のつぶやき: ${reply.mutterings.body}`
         : undefined,
       href: "/shelf/mutterings",
+    });
+  }
+
+  for (const note of input.notes) {
+    items.push({
+      id: `note:${note.id}`,
+      type: "note_post",
+      occurredAt: note.created_at,
+      primaryText: note.body,
+      href: "/shelf/notes",
+    });
+  }
+
+  for (const reply of input.noteReplies) {
+    items.push({
+      id: `note-reply:${reply.id}`,
+      type: "note_reply",
+      occurredAt: reply.created_at,
+      primaryText: reply.body,
+      secondaryText: reply.notes?.body ? `元のNOTE: ${reply.notes.body}` : undefined,
+      href: "/shelf/notes",
     });
   }
 
