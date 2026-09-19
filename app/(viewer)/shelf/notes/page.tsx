@@ -86,7 +86,7 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
     <>
       <AccessLogTracker pageType="NOTE" />
       <ShelfBackLink />
-      <SubHeader title="NOTE" subtitle="君に話ながら歩いてゆく" />
+      <SubHeader title="NOTE" subtitle="君に話しながら歩いてゆく" />
       <div className="px-5 pb-6">
         <NotesContent notes={notesWithPhotos} repliesByNoteId={repliesByNoteId} actor={actor} />
         <ListPagination basePath="/shelf/notes" page={page} totalPages={totalPages} />
