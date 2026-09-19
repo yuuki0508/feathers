@@ -1,4 +1,4 @@
-export const MUTTERING_MAX_LENGTH = 300;
+export const MUTTERING_MAX_LENGTH = 1000;
 
 export function validateMutteringBody(body: string): string | null {
   const trimmed = body.trim();

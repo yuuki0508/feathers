@@ -1,6 +1,6 @@
 create table public.mutterings (
   id uuid primary key default gen_random_uuid(),
-  body text not null check (char_length(body) <= 300),
+  body text not null check (char_length(body) <= 1000),
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -8,7 +8,7 @@ create table public.mutterings (
 create table public.muttering_replies (
   id uuid primary key default gen_random_uuid(),
   muttering_id uuid not null references public.mutterings(id) on delete cascade,
-  body text not null check (char_length(body) <= 300),
+  body text not null check (char_length(body) <= 1000),
   author_type text not null check (author_type in ('admin', 'viewer')),
   created_at timestamptz default now(),
   updated_at timestamptz default now()
